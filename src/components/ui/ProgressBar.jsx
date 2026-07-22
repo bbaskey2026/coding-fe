@@ -1,41 +1,82 @@
 import React from "react";
-import { motion } from "framer-motion";
+
+// MUI Imports
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import LinearProgress from "@mui/material/LinearProgress";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export const ProgressBar = ({
   value = 0,
   max = 100,
-  className = "",
   color = "primary", // primary | accent | success | danger | warning
   showLabel = false,
   ...props
 }) => {
   const percentage = Math.min(100, Math.max(0, (value / max) * 100));
 
-  const colors = {
-    primary: "bg-primary shadow-[0_0_10px_rgba(99,102,241,0.4)]",
-    accent: "bg-accent shadow-[0_0_10px_rgba(139,92,246,0.4)]",
-    success: "bg-success shadow-[0_0_10px_rgba(34,197,94,0.4)]",
-    danger: "bg-danger shadow-[0_0_10px_rgba(239,68,68,0.4)]",
-    warning: "bg-warning shadow-[0_0_10px_rgba(245,158,11,0.4)]"
+  const getColors = () => {
+    switch (color) {
+      case "primary":
+        return {
+          barColor: "primary.main",
+          glow: "0 0 10px rgba(212, 175, 55, 0.4)",
+        };
+      case "accent":
+        return {
+          barColor: "#FFD700",
+          glow: "0 0 10px rgba(255, 215, 0, 0.4)",
+        };
+      case "success":
+        return {
+          barColor: "primary.main",
+          glow: "0 0 10px rgba(212, 175, 55, 0.4)",
+        };
+      case "danger":
+        return {
+          barColor: "#D32F2F",
+          glow: "0 0 10px rgba(211, 47, 47, 0.4)",
+        };
+      case "warning":
+        return {
+          barColor: "#FFD700",
+          glow: "0 0 10px rgba(255, 215, 0, 0.4)",
+        };
+      default:
+        return {
+          barColor: "primary.main",
+          glow: "none",
+        };
+    }
   };
 
+  const colors = getColors();
+
   return (
-    <div className={`w-full flex flex-col gap-1.5 ${className}`} {...props}>
+    <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }} {...props}>
       {showLabel && (
-        <div className="flex justify-between text-xs font-semibold text-text-secondary">
-          <span>Progress</span>
-          <span>{Math.round(percentage)}%</span>
-        </div>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>Progress</Typography>
+          <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>{Math.round(percentage)}%</Typography>
+        </Box>
       )}
-      <div className="w-full h-2 bg-card border border-border/40 rounded-full overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${percentage}%` }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className={`h-full rounded-full ${colors[color]}`}
-        />
-      </div>
-    </div>
+      <LinearProgress
+        variant="determinate"
+        value={percentage}
+        sx={{
+          height: 8,
+          borderRadius: 4,
+          backgroundColor: "background.card",
+          border: "1px solid",
+          borderColor: "rgba(44, 44, 44, 0.4)",
+          "& .MuiLinearProgress-bar": {
+            borderRadius: 4,
+            backgroundColor: colors.barColor,
+            boxShadow: colors.glow,
+          },
+        }}
+      />
+    </Box>
   );
 };
 
@@ -44,45 +85,56 @@ export const ProgressRing = ({
   max = 100,
   size = 60,
   strokeWidth = 5,
-  color = "#6366F1",
+  color = "#D4AF37", // Default to Gold color instead of Indigo
   label = "",
-  className = ""
+  ...props
 }) => {
   const percentage = Math.min(100, Math.max(0, (value / max) * 100));
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className={`relative flex items-center justify-center ${className}`}>
-      <svg width={size} height={size} className="transform -rotate-90">
-        {/* Track circle */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="transparent"
-          stroke="#27272A"
-          strokeWidth={strokeWidth}
-        />
-        {/* Fill circle */}
-        <motion.circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="transparent"
-          stroke={color}
-          strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          strokeLinecap="round"
-        />
-      </svg>
-      <div className="absolute flex flex-col items-center justify-center text-center">
-        <span className="text-sm font-bold text-text-primary">{label || `${Math.round(percentage)}%`}</span>
-      </div>
-    </div>
+    <Box sx={{ position: "relative", display: "inline-flex", alignItems: "center", justifyCenter: "center" }} {...props}>
+      {/* Background circle track */}
+      <CircularProgress
+        variant="determinate"
+        value={100}
+        size={size}
+        thickness={strokeWidth}
+        sx={{
+          color: "rgba(44, 44, 44, 0.6)",
+          position: "absolute",
+        }}
+      />
+      {/* Foreground progress circle */}
+      <CircularProgress
+        variant="determinate"
+        value={percentage}
+        size={size}
+        thickness={strokeWidth}
+        sx={{
+          color: color,
+          transform: "rotate(-90deg) !important",
+          "& .MuiCircularProgress-circle": {
+            strokeLinecap: "round",
+          },
+        }}
+      />
+      {/* Centered label */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Typography variant="caption" sx={{ fontSize: "12px", fontWeight: "bold", color: "text.primary" }}>
+          {label || `${Math.round(percentage)}%`}
+        </Typography>
+      </Box>
+    </Box>
   );
 };

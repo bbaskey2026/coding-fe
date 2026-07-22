@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Code, Trophy, Target, Shield, Users, ArrowUpRight, Check, HelpCircle } from "lucide-react";
+import { ArrowRight, Code, Trophy, Target, Users, ArrowUpRight, Check, HelpCircle } from "lucide-react";
 import { Card, CardBody } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
+
+// MUI Imports
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import ButtonBase from "@mui/material/ButtonBase";
 
 export const Landing = () => {
   const [activeFaq, setActiveFaq] = useState(null);
@@ -78,231 +86,545 @@ export const Landing = () => {
   ];
 
   return (
-    <div className="bg-bg min-h-screen text-text-primary overflow-x-hidden pt-16">
+    <Box
+      sx={{
+        backgroundColor: "background.default",
+        minHeight: "100vh",
+        color: "text.primary",
+        overflowX: "hidden",
+        pt: 8,
+        position: "relative",
+      }}
+    >
       {/* Background gradients */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/3 right-1/4 w-[450px] h-[450px] bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
+      <Box sx={{ position: "absolute", top: 0, left: "25%", width: 500, height: 500, backgroundColor: "rgba(212, 175, 55, 0.06)", borderRadius: "50%", filter: "blur(120px)", pointerEvents: "none" }} />
+      <Box sx={{ position: "absolute", top: "33%", right: "25%", width: 450, height: 450, backgroundColor: "rgba(255, 215, 0, 0.04)", borderRadius: "50%", filter: "blur(100px)", pointerEvents: "none" }} />
+      {/* M3 morphing blobs */}
+      <Box className="animate-blob-morph" sx={{ position: "absolute", top: "15%", right: 0, width: 224, height: 224, background: "linear-gradient(135deg, rgba(212,175,55,0.05) 0%, rgba(255,215,0,0.05) 100%)", pointerEvents: "none" }} />
+      <Box className="animate-blob-morph" sx={{ position: "absolute", bottom: "20%", left: 0, width: 160, height: 160, background: "linear-gradient(45deg, rgba(255,215,0,0.04) 0%, rgba(212,175,55,0.04) 100%)", pointerEvents: "none", animationDelay: "4s" }} />
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 pt-16 pb-12 flex flex-col items-center text-center relative z-10">
-        <motion.div
+      <Container
+        maxWidth="lg"
+        component="section"
+        sx={{
+          pt: 8,
+          pb: 6,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          position: "relative",
+          zIndex: 10,
+        }}
+      >
+        <Box
+          component={motion.div}
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-primary/10 border border-primary/20 px-3 py-1 rounded-full text-xs font-bold text-primary inline-flex items-center gap-1.5 mb-6"
+          sx={{
+            backgroundColor: "rgba(212, 175, 55, 0.1)",
+            border: "1px solid rgba(212, 175, 55, 0.2)",
+            px: 1.5,
+            py: 0.5,
+            borderRadius: "50px",
+            fontSize: "12px",
+            fontWeight: "bold",
+            color: "primary.main",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.75,
+            mb: 3,
+          }}
         >
           <span>Announcing CodeForge Studio v1.0</span>
           <ArrowUpRight size={12} />
-        </motion.div>
+        </Box>
 
-        <motion.h1
+        <Typography
+          component={motion.h1}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="text-4xl sm:text-6xl font-extrabold tracking-tight max-w-4xl leading-tight"
+          variant="h2"
+          sx={{
+            fontWeight: 800,
+            fontSize: { xs: "36px", sm: "60px" },
+            letterSpacing: "-0.02em",
+            maxWidth: 896,
+            lineHeight: 1.15,
+          }}
         >
           Forge Your Coding Skills. <br />
-          <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+          <Box
+            component="span"
+            sx={{
+              background: "linear-gradient(90deg, #D4AF37, #FFD700, #D4AF37)",
+              backgroundClip: "text",
+              textFillColor: "transparent",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
             Conquer Technical Interviews.
-          </span>
-        </motion.h1>
+          </Box>
+        </Typography>
 
-        <motion.p
+        <Typography
+          component={motion.p}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-text-secondary text-base sm:text-lg max-w-2xl font-light mt-6 leading-relaxed"
+          variant="body1"
+          sx={{
+            color: "text.secondary",
+            fontSize: { xs: "14px", sm: "18px" },
+            maxWidth: "600px",
+            fontWeight: "light",
+            mt: 3,
+            lineHeight: 1.625,
+          }}
         >
           An ultra-premium coding preparation platform mimicking actual interview loops. Solve challenges with Monaco editor layouts, track plans, and master simulated technical questions.
-        </motion.p>
+        </Typography>
 
-        <motion.div
+        <Box
+          component={motion.div}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-3.5 mt-10"
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 1.75,
+            mt: 5,
+          }}
         >
-          <Link to="/auth">
-            <Button size="lg" className="w-full sm:w-auto font-semibold">
-              Get Started Free <ArrowRight size={16} />
+          <Link to="/auth?mode=register" style={{ textDecoration: "none" }}>
+            <Button size="lg" style={{ width: "100%", fontWeight: "bold" }}>
+              Get Started Free <ArrowRight size={16} style={{ marginLeft: "8px" }} />
             </Button>
           </Link>
-          <Link to="/problems">
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
+          <Link to="/problems" style={{ textDecoration: "none" }}>
+            <Button variant="outline" size="lg" style={{ width: "100%" }}>
               Explore Problems
             </Button>
           </Link>
-        </motion.div>
+        </Box>
 
         {/* Floating Code Illustration */}
-        <motion.div
+        <Box
+          component={motion.div}
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, type: "spring", stiffness: 80 }}
-          className="w-full max-w-4xl mt-16 rounded-xl border border-border/80 bg-surface/50 p-2.5 shadow-2xl relative"
+          sx={{
+            width: "100%",
+            maxWidth: "896px",
+            mt: 8,
+            borderRadius: "12px",
+            border: "1px solid",
+            borderColor: "divider",
+            backgroundColor: "rgba(17, 17, 17, 0.5)",
+            p: 1.25,
+            boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.5)",
+            position: "relative",
+          }}
         >
-          <div className="flex gap-1.5 pb-2 px-1 text-zinc-500 border-b border-border/40 mb-3 text-xs justify-start">
-            <div className="w-2.5 h-2.5 rounded-full bg-danger" />
-            <div className="w-2.5 h-2.5 rounded-full bg-warning" />
-            <div className="w-2.5 h-2.5 rounded-full bg-success" />
-            <span className="font-mono ml-4 text-[10px]">solution.js — CodeForge Sandbox</span>
-          </div>
-          <div className="text-left font-mono text-xs text-primary leading-relaxed p-4 bg-zinc-950/60 rounded-lg overflow-x-auto min-h-[140px]">
-            <span className="text-text-secondary">// Problem: Find K-th Largest Element</span><br />
-            <span className="text-accent">function</span> <span className="text-text-primary">findKthLargest</span>(nums, k) &#123;<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-accent">const</span> minHeap = <span className="text-accent">new</span> <span className="text-text-primary">MinHeap</span>();<br />
+          <Box
+            sx={{
+              display: "flex",
+              gap: 0.75,
+              pb: 1,
+              px: 0.5,
+              borderBottom: "1px solid rgba(44, 44, 44, 0.4)",
+              mb: 1.5,
+              fontSize: "12px",
+              justifyContent: "flex-start",
+              alignItems: "center",
+            }}
+          >
+            <Box sx={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#D32F2F" }} />
+            <Box sx={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#FFD700" }} />
+            <Box sx={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#2E7D32" }} />
+            <Box component="span" sx={{ fontFamily: "monospace", ml: 2, fontSize: "10px", color: "text.secondary" }}>
+              solution.js — CodeForge Sandbox
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              textAlign: "left",
+              fontFamily: "monospace",
+              fontSize: "12px",
+              color: "primary.main",
+              lineHeight: 1.6,
+              p: 2,
+              backgroundColor: "rgba(0, 0, 0, 0.6)",
+              borderRadius: "8px",
+              overflowX: "auto",
+              minHeight: "140px",
+            }}
+          >
+            <span style={{ color: "#CFCFCF" }}>// Problem: Find K-th Largest Element</span><br />
+            <span style={{ color: "#FFD700" }}>function</span> <span style={{ color: "#FFFFFF" }}>findKthLargest</span>(nums, k) &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: "#FFD700" }}>const</span> minHeap = <span style={{ color: "#FFD700" }}>new</span> <span style={{ color: "#FFFFFF" }}>MinHeap</span>();<br />
             &nbsp;&nbsp;&nbsp;&nbsp;nums.forEach(num =&gt; &#123;<br />
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minHeap.push(num);<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-accent">if</span> (minHeap.size() &gt; k) minHeap.pop();<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: "#FFD700" }}>if</span> (minHeap.size() &gt; k) minHeap.pop();<br />
             &nbsp;&nbsp;&nbsp;&nbsp;&#125;);<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-accent">return</span> minHeap.peek();<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: "#FFD700" }}>return</span> minHeap.peek();<br />
             &#125;
-          </div>
-        </motion.div>
-      </section>
+          </Box>
+        </Box>
+      </Container>
 
       {/* Companies hiring banner */}
-      <section className="bg-card/30 border-y border-border/40 py-8 text-center relative z-10 overflow-hidden">
-        <span className="text-[10px] font-bold tracking-widest text-text-secondary uppercase">Empowering engineers at companies globally</span>
-        <div className="flex justify-center flex-wrap gap-8 sm:gap-14 items-center mt-6 px-6 opacity-60">
-          {["Google", "Stripe", "Netflix", "Amazon", "Apple", "Microsoft"].map(c => (
-            <span key={c} className="font-bold text-base tracking-wider text-text-primary">{c}</span>
+      <Box
+        component="section"
+        className="pattern-stripes"
+        sx={{
+          backgroundColor: "rgba(26, 26, 26, 0.3)",
+          borderTop: "1px solid",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          py: 4,
+          textAlign: "center",
+          position: "relative",
+          zIndex: 10,
+          overflow: "hidden",
+        }}
+      >
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: "bold",
+            letterSpacing: "0.1em",
+            color: "text.secondary",
+            textTransform: "uppercase",
+            fontSize: "10px",
+          }}
+        >
+          Empowering engineers at companies globally
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            gap: { xs: 4, sm: 7 },
+            alignItems: "center",
+            mt: 3,
+            px: 3,
+            opacity: 0.6,
+          }}
+        >
+          {["Google", "Stripe", "Netflix", "Amazon", "Apple", "Microsoft"].map((c) => (
+            <Typography key={c} variant="body1" sx={{ fontWeight: "bold", letterSpacing: "0.05em", color: "text.primary" }}>
+              {c}
+            </Typography>
           ))}
-        </div>
-      </section>
+        </Box>
+      </Box>
 
       {/* Statistics Section */}
-      <section className="max-w-7xl mx-auto px-6 py-20 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <Container
+        maxWidth="lg"
+        component="section"
+        className="pattern-dots-lg"
+        sx={{ py: 10, position: "relative", zIndex: 10 }}
+      >
+        <Grid container spacing={3} sx={{ textAlign: "center" }}>
           {stats.map((s, idx) => (
-            <div key={idx} className="p-4 border border-border/40 rounded-xl bg-card/20">
-              <div className="text-3xl sm:text-4xl font-extrabold text-primary">{s.number}</div>
-              <div className="text-xs text-text-secondary mt-1.5 font-light">{s.label}</div>
-            </div>
+            <Grid item xs={6} md={3} key={idx}>
+              <Box
+                sx={{
+                  p: 2,
+                  border: "1px solid",
+                  borderColor: "rgba(44, 44, 44, 0.4)",
+                  borderRadius: "12px",
+                  backgroundColor: "rgba(26, 26, 26, 0.2)",
+                }}
+              >
+                <Typography variant="h4" sx={{ fontWeight: 800, color: "primary.main" }}>
+                  {s.number}
+                </Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block", fontWeight: "light" }}>
+                  {s.label}
+                </Typography>
+              </Box>
+            </Grid>
           ))}
-        </div>
-      </section>
+        </Grid>
+      </Container>
 
       {/* Feature grid */}
-      <section className="max-w-7xl mx-auto px-6 py-12 relative z-10">
-        <div className="text-center max-w-xl mx-auto mb-16">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary">Designed for high performers.</h2>
-          <p className="text-xs text-text-secondary mt-3 leading-relaxed">Everything you need to level up your programming, organize folders of notes, and prepare interview experiences.</p>
-        </div>
+      <Container
+        maxWidth="lg"
+        component="section"
+        className="pattern-diamond"
+        sx={{ py: 6, position: "relative", zIndex: 10 }}
+      >
+        <Box sx={{ textAlign: "center", maxWidth: "600px", mx: "auto", mb: 8 }}>
+          <Typography variant="h4" sx={{ fontWeight: 800, color: "text.primary" }}>
+            Designed for high performers.
+          </Typography>
+          <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: 1.5, lineHeight: 1.6 }}>
+            Everything you need to level up your programming, organize folders of notes, and prepare interview experiences.
+          </Typography>
+        </Box>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Grid container spacing={3}>
           {features.map((f, idx) => {
             const Icon = f.icon;
             return (
-              <Card key={idx} hoverGlow glowColor="primary" className="p-6">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4 border border-primary/20">
-                  <Icon size={20} />
-                </div>
-                <CardBody>
-                  <h3 className="text-sm font-bold text-text-primary mb-2">{f.title}</h3>
-                  <p className="text-xs leading-relaxed text-text-secondary font-light">{f.desc}</p>
-                </CardBody>
-              </Card>
+              <Grid item xs={12} sm={6} lg={3} key={idx} sx={{ display: "flex" }}>
+                <Card hoverGlow glowColor="primary" style={{ width: "100%", display: "flex", flexDirection: "column", flexGrow: 1 }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "8px",
+                      backgroundColor: "rgba(212, 175, 55, 0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "primary.main",
+                      mb: 2,
+                      border: "1px solid rgba(212, 175, 55, 0.2)",
+                    }}
+                  >
+                    <Icon size={20} />
+                  </Box>
+                  <CardBody style={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary", mb: 1 }}>
+                      {f.title}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "light", lineHeight: 1.5 }}>
+                      {f.desc}
+                    </Typography>
+                  </CardBody>
+                </Card>
+              </Grid>
             );
           })}
-        </div>
-      </section>
+        </Grid>
+      </Container>
 
       {/* Pricing Matrix */}
-      <section className="max-w-7xl mx-auto px-6 py-20 relative z-10">
-        <div className="text-center max-w-xl mx-auto mb-16">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-text-primary">Transparent Pricing Plans</h2>
-          <p className="text-xs text-text-secondary mt-3">Invest in your career. Upgrade anytime, cancel in a click.</p>
-        </div>
+      <Container
+        maxWidth="lg"
+        component="section"
+        className="pattern-rings"
+        sx={{ py: 10, position: "relative", zIndex: 10 }}
+      >
+        <Box sx={{ textAlign: "center", maxWidth: "600px", mx: "auto", mb: 8 }}>
+          <Typography variant="h4" sx={{ fontWeight: 800, color: "text.primary" }}>
+            Transparent Pricing Plans
+          </Typography>
+          <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: 1.5 }}>
+            Invest in your career. Upgrade anytime, cancel in a click.
+          </Typography>
+        </Box>
 
-        <div className="grid md:grid-cols-3 gap-6 items-stretch">
+        <Grid container spacing={3} alignItems="stretch">
           {tiers.map((t, idx) => (
-            <div
-              key={idx}
-              className={`p-8 rounded-xl border flex flex-col justify-between text-left ${
-                t.popular
-                  ? "bg-surface border-primary shadow-[0_0_30px_rgba(99,102,241,0.15)] relative"
-                  : "bg-card/40 border-border/80"
-              }`}
-            >
-              {t.popular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-primary text-[10px] font-bold text-text-primary tracking-widest uppercase">
-                  Most Popular
-                </span>
-              )}
-              <div>
-                <h3 className="text-base font-bold text-text-primary">{t.name}</h3>
-                <p className="text-xs text-text-secondary mt-1 min-h-[30px] font-light leading-relaxed">{t.desc}</p>
-                <div className="flex items-baseline gap-1 mt-4">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-text-primary">{t.price}</span>
-                  <span className="text-xs text-text-secondary">/month</span>
-                </div>
+            <Grid item xs={12} md={4} key={idx} sx={{ display: "flex" }}>
+              <Box
+                sx={{
+                  p: 4,
+                  borderRadius: "12px",
+                  border: "1px solid",
+                  borderColor: t.popular ? "primary.main" : "divider",
+                  backgroundColor: t.popular ? "background.paper" : "rgba(26, 26, 26, 0.4)",
+                  boxShadow: t.popular ? "0 0 30px rgba(212, 175, 55, 0.15)" : "none",
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  textAlign: "left",
+                  width: "100%",
+                }}
+              >
+                {t.popular && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: -12,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      px: 1.5,
+                      py: 0.25,
+                      borderRadius: "50px",
+                      backgroundColor: "primary.main",
+                      fontSize: "10px",
+                      fontWeight: "bold",
+                      color: "background.default",
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Most Popular
+                  </Box>
+                )}
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "text.primary" }}>{t.name}</Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "text.secondary",
+                      mt: 0.5,
+                      display: "block",
+                      minHeight: 30,
+                      fontWeight: "light",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {t.desc}
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5, mt: 2 }}>
+                    <Typography variant="h4" sx={{ fontWeight: 800, color: "text.primary" }}>{t.price}</Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary" }}>/month</Typography>
+                  </Box>
 
-                <div className="border-t border-border/40 my-6" />
+                  <Divider sx={{ my: 3, borderColor: "rgba(44, 44, 44, 0.4)" }} />
 
-                <ul className="flex flex-col gap-3">
-                  {t.features.map((feat, fIdx) => (
-                    <li key={fIdx} className="flex items-start gap-2.5 text-xs text-text-secondary font-light">
-                      <Check size={14} className="text-success mt-0.5 shrink-0" />
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                  <Box component="ul" sx={{ listStyle: "none", p: 0, m: 0, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                    {t.features.map((feat, fIdx) => (
+                      <Box
+                        component="li"
+                        key={fIdx}
+                        sx={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 1.25,
+                          fontSize: "12px",
+                          color: "text.secondary",
+                          fontWeight: "light",
+                        }}
+                      >
+                        <Check size={14} style={{ color: "#2E7D32", marginTop: "2px", flexShrink: 0 }} />
+                        <span>{feat}</span>
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
 
-              <div className="mt-8">
-                <Link to="/auth" className="w-full">
-                  <Button variant={t.popular ? "primary" : "outline"} className="w-full font-semibold">
-                    {t.cta}
-                  </Button>
-                </Link>
-              </div>
-            </div>
+                <Box sx={{ mt: 4 }}>
+                  <Link to="/auth?mode=register" style={{ textDecoration: "none" }}>
+                    <Button variant={t.popular ? "primary" : "outline"} style={{ width: "100%", fontWeight: "bold" }}>
+                      {t.cta}
+                    </Button>
+                  </Link>
+                </Box>
+              </Box>
+            </Grid>
           ))}
-        </div>
-      </section>
+        </Grid>
+      </Container>
 
       {/* FAQs */}
-      <section className="max-w-3xl mx-auto px-6 py-12 relative z-10">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-center text-text-primary mb-12">Frequently Asked Questions</h2>
-        <div className="flex flex-col gap-4">
+      <Container maxWidth="md" sx={{ py: 6, position: "relative", zIndex: 10 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, textAlign: "center", color: "text.primary", mb: 6 }}>
+          Frequently Asked Questions
+        </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {faqs.map((faq, index) => (
-            <div
+            <Box
               key={index}
-              className="border border-border/60 rounded-xl bg-card/25 overflow-hidden transition-colors"
+              sx={{
+                border: "1px solid rgba(44, 44, 44, 0.6)",
+                borderRadius: "12px",
+                backgroundColor: "rgba(26, 26, 26, 0.25)",
+                overflow: "hidden",
+                transition: "background-color 0.2s",
+                "&:hover": {
+                  backgroundColor: "rgba(26, 26, 26, 0.4)",
+                },
+              }}
             >
-              <button
+              <ButtonBase
                 onClick={() => setActiveFaq(activeFaq === index ? null : index)}
-                className="w-full flex items-center justify-between p-5 text-left text-xs font-bold text-text-primary cursor-pointer hover:bg-card/40 focus:outline-none"
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  p: 2.5,
+                  textAlign: "left",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  color: "text.primary",
+                }}
               >
                 <span>{faq.q}</span>
-                <HelpCircle size={14} className="text-text-secondary" />
-              </button>
+                <HelpCircle size={14} style={{ color: "#CFCFCF" }} />
+              </ButtonBase>
               {activeFaq === index && (
-                <div className="px-5 pb-5 text-xs text-text-secondary leading-relaxed font-light border-t border-border/40 pt-3">
+                <Box
+                  sx={{
+                    px: 2.5,
+                    pb: 2.5,
+                    fontSize: "12px",
+                    color: "text.secondary",
+                    lineHeight: 1.6,
+                    fontWeight: "light",
+                    borderTop: "1px solid rgba(44, 44, 44, 0.4)",
+                    pt: 1.5,
+                  }}
+                >
                   {faq.a}
-                </div>
+                </Box>
               )}
-            </div>
+            </Box>
           ))}
-        </div>
-      </section>
+        </Box>
+      </Container>
 
       {/* Platform Footer */}
-      <footer className="border-t border-border/40 bg-zinc-950/40 py-12 text-center text-xs text-text-secondary relative z-10">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center font-bold text-text-primary text-[10px]">CF</div>
-            <span className="font-bold text-text-primary">CodeForge</span>
-          </div>
-          <div className="flex gap-6 font-light">
-            <a href="#" className="hover:text-text-primary">Terms of Service</a>
-            <a href="#" className="hover:text-text-primary">Privacy Policy</a>
-            <a href="#" className="hover:text-text-primary">Contact Support</a>
-          </div>
-          <div>© 2026 CodeForge Inc. All rights reserved.</div>
-        </div>
-      </footer>
-    </div>
+      <Box
+        component="footer"
+        sx={{
+          borderTop: "1px solid",
+          borderColor: "divider",
+          backgroundColor: "rgba(17, 17, 17, 0.6)",
+          py: 6,
+          textAlign: "center",
+          fontSize: "12px",
+          color: "text.secondary",
+          position: "relative",
+          zIndex: 10,
+        }}
+      >
+        <Container
+          maxWidth="lg"
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 3,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ width: 24, height: 24, borderRadius: "4px", backgroundColor: "primary.main", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", color: "background.default", fontSize: "10px" }}>
+              CF
+            </Box>
+            <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary" }}>
+              CodeForge
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", gap: 3, fontWeight: "light" }}>
+            <a href="#" style={{ color: "inherit", textDecoration: "none" }} onMouseEnter={(e) => e.target.style.color = "#FFFFFF"} onMouseLeave={(e) => e.target.style.color = "inherit"}>Terms of Service</a>
+            <a href="#" style={{ color: "inherit", textDecoration: "none" }} onMouseEnter={(e) => e.target.style.color = "#FFFFFF"} onMouseLeave={(e) => e.target.style.color = "inherit"}>Privacy Policy</a>
+            <a href="#" style={{ color: "inherit", textDecoration: "none" }} onMouseEnter={(e) => e.target.style.color = "#FFFFFF"} onMouseLeave={(e) => e.target.style.color = "inherit"}>Contact Support</a>
+          </Box>
+          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+            © 2026 CodeForge Inc. All rights reserved.
+          </Typography>
+        </Container>
+      </Box>
+    </Box>
   );
 };
+
 export default Landing;

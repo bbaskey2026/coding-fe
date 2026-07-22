@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Star, X, Info, CheckCircle, AlertTriangle, Play } from "lucide-react";
+import { Trophy, X, Info, CheckCircle, AlertTriangle } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+
+// MUI Imports
+import Box from "@mui/material/Box";
+import Dialog from "@mui/material/Dialog";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 export const NotificationCenter = () => {
   const { notifications, showLevelUp, setShowLevelUp, triggerConfettiEffect } = useApp();
@@ -26,20 +33,33 @@ export const NotificationCenter = () => {
   const getIcon = (type) => {
     switch (type) {
       case "success":
-        return <CheckCircle size={16} className="text-success" />;
+        return <CheckCircle size={16} style={{ color: "#D4AF37" }} />;
       case "warning":
-        return <AlertTriangle size={16} className="text-warning" />;
+        return <AlertTriangle size={16} style={{ color: "#FFD700" }} />;
       case "achievement":
-        return <Trophy size={16} className="text-amber-500 animate-bounce" />;
+        return <Trophy size={16} className="animate-bounce" style={{ color: "#F59E0B" }} />;
       default:
-        return <Info size={16} className="text-primary" />;
+        return <Info size={16} style={{ color: "#D4AF37" }} />;
     }
   };
 
   return (
     <>
       {/* Toast Overlays Container */}
-      <div className="fixed top-20 right-6 z-50 flex flex-col gap-3.5 max-w-sm w-full pointer-events-none">
+      <Box
+        sx={{
+          position: "fixed",
+          top: "80px",
+          right: "24px",
+          zIndex: 1300,
+          display: "flex",
+          flexDirection: "column",
+          gap: 1.75,
+          maxWidth: "320px",
+          width: "100%",
+          pointerEvents: "none",
+        }}
+      >
         <AnimatePresence>
           {activeToasts.map((toast) => (
             <motion.div
@@ -52,78 +72,155 @@ export const NotificationCenter = () => {
                 // Auto dismiss toast after 4.5s
                 setTimeout(() => removeToast(toast.id), 4500);
               }}
-              className="glass p-4 rounded-xl border border-border/80 flex gap-3 shadow-xl pointer-events-auto w-full text-left"
+              style={{ width: "100%" }}
             >
-              <div className="mt-0.5">{getIcon(toast.type)}</div>
-              <div className="flex-1">
-                <div className="text-xs font-bold text-text-primary">{toast.title}</div>
-                <div className="text-[11px] text-text-secondary mt-0.5 leading-relaxed font-light">
-                  {toast.message}
-                </div>
-              </div>
-              <button
-                onClick={() => removeToast(toast.id)}
-                className="text-text-secondary hover:text-text-primary p-0.5 rounded cursor-pointer self-start"
+              <Box
+                className="glass"
+                sx={{
+                  p: 2,
+                  borderRadius: "12px",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  display: "flex",
+                  gap: 1.5,
+                  boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.4)",
+                  pointerEvents: "auto",
+                  width: "100%",
+                  textAlign: "left",
+                }}
               >
-                <X size={12} />
-              </button>
+                <Box sx={{ mt: 0.25 }}>{getIcon(toast.type)}</Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="body2" sx={{ fontSize: "12px", fontWeight: "bold", color: "text.primary" }}>
+                    {toast.title}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: "block",
+                      fontSize: "11px",
+                      color: "text.secondary",
+                      mt: 0.5,
+                      lineHeight: 1.4,
+                      fontWeight: "light",
+                    }}
+                  >
+                    {toast.message}
+                  </Typography>
+                </Box>
+                <IconButton
+                  onClick={() => removeToast(toast.id)}
+                  size="small"
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { color: "text.primary" },
+                    alignSelf: "flex-start",
+                    p: 0.25,
+                  }}
+                >
+                  <X size={12} />
+                </IconButton>
+              </Box>
             </motion.div>
           ))}
         </AnimatePresence>
-      </div>
+      </Box>
 
       {/* Level Up Fullscreen Popup */}
-      <AnimatePresence>
+      <Dialog
+        open={Boolean(showLevelUp)}
+        onClose={() => setShowLevelUp(null)}
+        PaperProps={{
+          className: "glass-card",
+          sx: {
+            backgroundColor: "rgba(0, 0, 0, 0.85)",
+            border: "1px solid rgba(212, 175, 55, 0.3)",
+            p: 4,
+            borderRadius: "16px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+            boxShadow: "0 0 50px rgba(212, 175, 55, 0.25)",
+            maxWidth: 360,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: 80,
+            height: 80,
+            borderRadius: "50%",
+            background: "linear-gradient(45deg, #D4AF37, #FFD700)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: 3,
+            mb: 3,
+          }}
+        >
+          <Trophy size={40} className="animate-pulse" style={{ color: "#000000" }} />
+        </Box>
+
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: "bold",
+            letterSpacing: "0.1em",
+            color: "primary.main",
+            textTransform: "uppercase",
+          }}
+        >
+          Milestone Reached
+        </Typography>
+
+        <Typography variant="h5" sx={{ fontWeight: "bold", color: "text.primary", mt: 1 }}>
+          Coding Level Up!
+        </Typography>
+
         {showLevelUp && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowLevelUp(null)}
-              className="absolute inset-0 bg-bg/90 backdrop-blur-md cursor-pointer"
-            />
-
-            {/* Level up Announcement card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.85, y: 20 }}
-              transition={{ type: "spring", damping: 18, stiffness: 200 }}
-              className="relative z-10 w-full max-w-sm glass-card border border-primary/30 p-8 rounded-2xl flex flex-col items-center text-center shadow-[0_0_50px_rgba(99,102,241,0.25)]"
-            >
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg mb-6">
-                <Trophy size={40} className="text-text-primary animate-pulse" />
-              </div>
-
-              <span className="text-[10px] font-bold tracking-widest text-primary uppercase">Milestone Reached</span>
-              <h2 className="text-2xl font-bold text-text-primary mt-2">Coding Level Up!</h2>
-              
-              <div className="flex items-center gap-3 mt-4 mb-2">
-                <span className="text-text-secondary text-sm">Previous level</span>
-                <span className="text-xs text-text-secondary line-through">Lvl {showLevelUp.level - 1}</span>
-                <span className="text-text-primary font-extrabold text-2xl">Lvl {showLevelUp.level}</span>
-              </div>
-
-              <p className="text-xs text-text-secondary font-light max-w-xs mt-2 leading-relaxed">
-                You have advanced in the rankings! Keep coding to unlock more rewards, study badges, and premium roadmap paths.
-              </p>
-
-              <button
-                onClick={() => {
-                  triggerConfettiEffect();
-                  setShowLevelUp(null);
-                }}
-                className="mt-6 w-full py-2.5 bg-primary text-text-primary hover:bg-primary-dark font-semibold rounded-lg text-xs transition-colors cursor-pointer shadow-lg"
-              >
-                Claim Rewards
-              </button>
-            </motion.div>
-          </div>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: 2, mb: 1 }}>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              Previous level
+            </Typography>
+            <Typography variant="caption" sx={{ color: "text.secondary", textDecoration: "line-through" }}>
+              Lvl {showLevelUp.level - 1}
+            </Typography>
+            <Typography variant="h6" sx={{ color: "text.primary", fontWeight: "extrabold" }}>
+              Lvl {showLevelUp.level}
+            </Typography>
+          </Box>
         )}
-      </AnimatePresence>
+
+        <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "light", mt: 1, lineHeight: 1.5 }}>
+          You have advanced in the rankings! Keep coding to unlock more rewards, study badges, and premium roadmap paths.
+        </Typography>
+
+        <Button
+          onClick={() => {
+            triggerConfettiEffect();
+            setShowLevelUp(null);
+          }}
+          sx={{
+            mt: 3,
+            width: "100%",
+            py: 1.25,
+            backgroundColor: "primary.main",
+            color: "background.default",
+            fontWeight: "bold",
+            borderRadius: "8px",
+            fontSize: "12px",
+            textTransform: "none",
+            "&:hover": {
+              backgroundColor: "primary.dark",
+            },
+          }}
+        >
+          Claim Rewards
+        </Button>
+      </Dialog>
     </>
   );
 };
+
 export default NotificationCenter;

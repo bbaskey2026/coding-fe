@@ -1,4 +1,7 @@
 import React from "react";
+import Box from "@mui/material/Box";
+import InputBase from "@mui/material/InputBase";
+import Typography from "@mui/material/Typography";
 
 export const Input = ({
   label,
@@ -7,40 +10,66 @@ export const Input = ({
   placeholder,
   value,
   onChange,
-  className = "",
   error,
   icon: Icon,
   required = false,
   ...props
 }) => {
   return (
-    <div className={`flex flex-col gap-1.5 w-full ${className}`}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75, width: "100%" }}>
       {label && (
-        <label htmlFor={id} className="text-xs font-semibold text-text-secondary">
-          {label} {required && <span className="text-danger">*</span>}
-        </label>
+        <Box component="label" htmlFor={id} sx={{ fontSize: "12px", fontWeight: "bold", color: "text.secondary" }}>
+          {label} {required && <Box component="span" sx={{ color: "#FFFFFF" }}>*</Box>}
+        </Box>
       )}
-      <div className="relative flex items-center">
+      <Box
+        sx={{
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          width: "100%",
+          backgroundColor: "background.paper",
+          border: "1px solid",
+          borderColor: error ? "#D32F2F" : "divider",
+          borderRadius: "8px",
+          px: 1.5,
+          py: 1,
+          transition: "border-color 0.2s",
+          "&:focus-within": {
+            borderColor: error ? "#D32F2F" : "primary.main",
+            boxShadow: `0 0 0 1px ${error ? "#D32F2F" : "#D4AF37"}`,
+          },
+        }}
+      >
         {Icon && (
-          <div className="absolute left-3.5 text-text-secondary">
+          <Box sx={{ mr: 1.25, display: "flex", alignItems: "center", color: "text.secondary" }}>
             <Icon size={16} />
-          </div>
+          </Box>
         )}
-        <input
+        <InputBase
           id={id}
           type={type}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
           required={required}
-          className={`w-full bg-surface border border-border text-text-primary placeholder:text-text-secondary/50 rounded-lg text-sm transition-all focus:border-primary focus:ring-1 focus:ring-primary ${
-            Icon ? "pl-10 pr-4 py-2.5" : "px-4 py-2.5"
-          } ${error ? "border-danger focus:border-danger focus:ring-danger" : ""}`}
+          fullWidth
+          sx={{
+            fontSize: "14px",
+            color: "text.primary",
+            "& .MuiInputBase-input": {
+              p: 0,
+            },
+          }}
           {...props}
         />
-      </div>
-      {error && <span className="text-xs text-danger font-medium mt-0.5">{error}</span>}
-    </div>
+      </Box>
+      {error && (
+        <Typography variant="caption" sx={{ color: "#D32F2F", fontWeight: "medium", mt: 0.25 }}>
+          {error}
+        </Typography>
+      )}
+    </Box>
   );
 };
 
@@ -51,31 +80,48 @@ export const TextArea = ({
   value,
   onChange,
   rows = 4,
-  className = "",
   error,
   required = false,
   ...props
 }) => {
   return (
-    <div className={`flex flex-col gap-1.5 w-full ${className}`}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75, width: "100%" }}>
       {label && (
-        <label htmlFor={id} className="text-xs font-semibold text-text-secondary">
-          {label} {required && <span className="text-danger">*</span>}
-        </label>
+        <Box component="label" htmlFor={id} sx={{ fontSize: "12px", fontWeight: "bold", color: "text.secondary" }}>
+          {label} {required && <Box component="span" sx={{ color: "#FFFFFF" }}>*</Box>}
+        </Box>
       )}
-      <textarea
+      <InputBase
         id={id}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        rows={rows}
         required={required}
-        className={`w-full bg-surface border border-border text-text-primary placeholder:text-text-secondary/50 rounded-lg text-sm py-2.5 px-4 transition-all focus:border-primary focus:ring-1 focus:ring-primary resize-none ${
-          error ? "border-danger focus:border-danger focus:ring-danger" : ""
-        }`}
+        multiline
+        rows={rows}
+        fullWidth
+        sx={{
+          fontSize: "14px",
+          color: "text.primary",
+          backgroundColor: "background.paper",
+          border: "1px solid",
+          borderColor: error ? "#D32F2F" : "divider",
+          borderRadius: "8px",
+          px: 1.5,
+          py: 1.25,
+          transition: "border-color 0.2s",
+          "&:focus-within": {
+            borderColor: error ? "#D32F2F" : "primary.main",
+            boxShadow: `0 0 0 1px ${error ? "#D32F2F" : "#D4AF37"}`,
+          },
+        }}
         {...props}
       />
-      {error && <span className="text-xs text-danger font-medium mt-0.5">{error}</span>}
-    </div>
+      {error && (
+        <Typography variant="caption" sx={{ color: "#D32F2F", fontWeight: "medium", mt: 0.25 }}>
+          {error}
+        </Typography>
+      )}
+    </Box>
   );
 };

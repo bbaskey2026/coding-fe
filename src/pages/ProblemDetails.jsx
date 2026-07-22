@@ -1,25 +1,115 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import {
-  ArrowLeft,
-  Play,
-  CheckCircle,
-  MessageSquare,
-  BookOpen,
-  HelpCircle,
-  Bookmark,
-  BookmarkCheck,
-  ChevronUp,
-  Clock,
-  Sparkles,
-  Terminal
-} from "lucide-react";
+  Box,
+  Typography,
+  Button,
+  IconButton,
+  Chip,
+  Select,
+  MenuItem,
+  FormControl,
+  TextField,
+  Modal,
+  Paper,
+  Tabs,
+  Tab,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Avatar,
+  Divider,
+  CircularProgress,
+  Stack,
+  Container,
+  SvgIcon
+} from "@mui/material";
 import { useApp } from "../context/AppContext";
-import { Badge } from "../components/ui/Badge";
-import { Button } from "../components/ui/Button";
-import { Modal } from "../components/ui/Modal";
-import { Card } from "../components/ui/Card";
+
+/* ---------------------------------------------------------------------- */
+/* Inline icon components (replace @mui/icons-material to avoid the       */
+/* "Failed to resolve import" error). These use @mui/material's SvgIcon,  */
+/* which is already part of @mui/material, so no extra package is needed.*/
+/* They accept the same props (sx, fontSize, etc.) as the original icons.*/
+/* ---------------------------------------------------------------------- */
+
+const ArrowBack = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+  </SvgIcon>
+);
+
+const PlayArrow = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M8 5v14l11-7z" />
+  </SvgIcon>
+);
+
+const CheckCircle = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+  </SvgIcon>
+);
+
+const Forum = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z" />
+  </SvgIcon>
+);
+
+const MenuBook = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z" />
+  </SvgIcon>
+);
+
+const Bookmark = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
+  </SvgIcon>
+);
+
+const BookmarkAdded = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2zm-6.7 11.7L7 11.4l1.41-1.4 1.9 1.9 4.9-4.9 1.4 1.41-6.31 6.29z" />
+  </SvgIcon>
+);
+
+const ExpandLess = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />
+  </SvgIcon>
+);
+
+const AccessTime = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 5H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+  </SvgIcon>
+);
+
+const Terminal = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zM6 10l4 4-4 4-1.41-1.41L7.17 14 4.59 11.41 6 10zM12 16h6v2h-6z" />
+  </SvgIcon>
+);
+
+const InfoOutlined = (props) => (
+  <SvgIcon {...props} viewBox="0 0 24 24">
+    <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+  </SvgIcon>
+);
+
+/* ---------------------------------------------------------------------- */
+
+const getDifficultyColor = (difficulty) => {
+  switch (difficulty) {
+    case "Easy": return "success";
+    case "Medium": return "warning";
+    case "Hard": return "error";
+    default: return "default";
+  }
+};
 
 export const ProblemDetails = () => {
   const { id } = useParams();
@@ -36,14 +126,10 @@ export const ProblemDetails = () => {
 
   const problem = problems.find((p) => p.id === parseInt(id)) || problems[0];
 
-  // Active Left panel tab: description | editorial | discussion
-  const [activeTab, setActiveTab] = useState("description");
-
-  // Code editor states
+  const [activeTab, setActiveTab] = useState(0);
   const [language, setLanguage] = useState("javascript");
   const [editorValue, setEditorValue] = useState("");
 
-  // Sync templates on language change
   useEffect(() => {
     if (problem) {
       const template = problem.templates[language] || `// Template not available\nfunction solve() {\n    // Write code\n}`;
@@ -51,18 +137,13 @@ export const ProblemDetails = () => {
     }
   }, [language, problem]);
 
-  // Console Drawer states
   const [consoleOpen, setConsoleOpen] = useState(false);
   const [runLogs, setRunLogs] = useState("");
   const [isCompiling, setIsCompiling] = useState(false);
-  const [activeTestcaseTab, setActiveTestcaseTab] = useState(0);
-
-  // Success Submission Modal
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
-
-  // Stopwatch Timer
   const [time, setTime] = useState(0);
   const [timerActive, setTimerActive] = useState(true);
+  const [commentText, setCommentText] = useState("");
 
   useEffect(() => {
     let interval = null;
@@ -82,13 +163,8 @@ export const ProblemDetails = () => {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Discussions state
-  const [commentText, setCommentText] = useState("");
-
-  // Bookmark checker
   const isBookmarked = bookmarkedProblemIds.includes(problem.id);
 
-  // Compile / Run Code simulation
   const handleRunCode = () => {
     setIsCompiling(true);
     setConsoleOpen(true);
@@ -101,12 +177,11 @@ export const ProblemDetails = () => {
     }, 1500);
   };
 
-  // Submit Code Simulation
   const handleSubmitCode = () => {
     setIsCompiling(true);
     setConsoleOpen(true);
     setRunLogs("Submitting code to assertion nodes...");
-    
+
     setTimeout(() => {
       setIsCompiling(false);
       setRunLogs("Solution verified. Status: Solved 🟢");
@@ -118,249 +193,308 @@ export const ProblemDetails = () => {
   const handlePostComment = (e) => {
     e.preventDefault();
     if (!commentText.trim()) return;
-    addForumComment(1, commentText); // Seed to first post comments array for mock updates
+    addForumComment(1, commentText);
     setCommentText("");
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-20 pb-6 flex flex-col gap-4 text-left h-screen">
-      {/* Header breadcrumbs */}
-      <div className="flex justify-between items-center py-2">
-        <Link
+    <Container maxWidth="xl" sx={{ pt: 10, pb: 3, height: "100vh", display: "flex", flexDirection: "column", gap: 2 }}>
+      {/* Header */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 1 }}>
+        <Button
+          component={Link}
           to="/problems"
-          className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary"
+          startIcon={<ArrowBack sx={{ fontSize: 14 }} />}
+          size="small"
+          sx={{ color: "text.secondary", fontSize: 12, textTransform: "none" }}
         >
-          <ArrowLeft size={14} /> Back to Catalog
-        </Link>
+          Back to Catalog
+        </Button>
 
-        <div className="flex items-center gap-3">
-          {/* Bookmark Button */}
-          <button
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <IconButton
             onClick={() => toggleProblemBookmark(problem.id)}
-            className="p-1.5 rounded-lg border border-border bg-card text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
+            size="small"
+            sx={{
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 2,
+              bgcolor: "background.paper",
+              color: isBookmarked ? "primary.main" : "text.secondary"
+            }}
           >
-            {isBookmarked ? (
-              <BookmarkCheck size={14} className="text-primary" />
-            ) : (
-              <Bookmark size={14} />
-            )}
-          </button>
+            {isBookmarked ? <BookmarkAdded sx={{ fontSize: 14 }} /> : <Bookmark sx={{ fontSize: 14 }} />}
+          </IconButton>
 
-          {/* Stopwatch */}
-          <div className="flex items-center gap-1.5 px-3 py-1 border border-border/80 bg-card rounded-lg text-xs font-semibold text-text-primary font-mono">
-            <Clock size={12} className="text-text-secondary" />
-            <span>{formatTime(time)}</span>
-          </div>
-        </div>
-      </div>
+          <Box sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+            px: 1.5,
+            py: 0.5,
+            border: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            fontFamily: "monospace",
+            fontSize: 12,
+            fontWeight: 600
+          }}>
+            <AccessTime sx={{ fontSize: 12, color: "text.secondary" }} />
+            <Typography variant="caption" sx={{ fontFamily: "monospace", fontWeight: 600 }}>
+              {formatTime(time)}
+            </Typography>
+          </Box>
+        </Stack>
+      </Box>
 
-      {/* Main IDE Splitscreen */}
-      <div className="grid lg:grid-cols-2 gap-4 flex-1 min-h-[500px]">
-        {/* Left Pane (Tabbed description, editorial, discussion) */}
-        <div className="glass rounded-xl border border-border/50 overflow-hidden flex flex-col h-full bg-surface">
-          {/* Tab buttons */}
-          <div className="flex border-b border-border/40 bg-card/40 text-xs">
-            <button
-              onClick={() => setActiveTab("description")}
-              className={`flex items-center gap-1.5 px-4 py-3 cursor-pointer border-b-2 font-semibold ${
-                activeTab === "description"
-                  ? "border-primary text-text-primary bg-card/10"
-                  : "border-transparent text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              <HelpCircle size={14} /> Description
-            </button>
-            <button
-              onClick={() => setActiveTab("editorial")}
-              className={`flex items-center gap-1.5 px-4 py-3 cursor-pointer border-b-2 font-semibold ${
-                activeTab === "editorial"
-                  ? "border-primary text-text-primary bg-card/10"
-                  : "border-transparent text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              <BookOpen size={14} /> Editorial Walkthrough
-            </button>
-            <button
-              onClick={() => setActiveTab("discussion")}
-              className={`flex items-center gap-1.5 px-4 py-3 cursor-pointer border-b-2 font-semibold ${
-                activeTab === "discussion"
-                  ? "border-primary text-text-primary bg-card/10"
-                  : "border-transparent text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              <MessageSquare size={14} /> Community Forum ({problem.discussions.length})
-            </button>
-          </div>
+      {/* Main Split Screen */}
+      <Box sx={{ display: "grid", gridTemplateColumns: { lg: "1fr 1fr" }, gap: 2, flex: 1, minHeight: 500 }}>
+        {/* Left Pane */}
+        <Paper
+          variant="outlined"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            overflow: "hidden",
+            borderRadius: 3,
+            bgcolor: "background.paper"
+          }}
+        >
+          {/* Tabs */}
+          <Tabs
+            value={activeTab}
+            onChange={(e, val) => setActiveTab(val)}
+            sx={{
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              bgcolor: "action.hover",
+              minHeight: 44,
+              "& .MuiTab-root": {
+                fontSize: 11,
+                fontWeight: 600,
+                textTransform: "none",
+                minHeight: 44,
+                py: 0
+              }
+            }}
+          >
+            <Tab icon={<InfoOutlined sx={{ fontSize: 13 }} />} iconPosition="start" label="Description" />
+            <Tab icon={<MenuBook sx={{ fontSize: 13 }} />} iconPosition="start" label="Editorial Walkthrough" />
+            <Tab icon={<Forum sx={{ fontSize: 13 }} />} iconPosition="start" label={`Community Forum (${problem.discussions.length})`} />
+          </Tabs>
 
-          {/* Tab Contents */}
-          <div className="flex-1 overflow-y-auto p-6 text-sm text-text-secondary leading-relaxed">
-            {activeTab === "description" && (
-              <div className="flex flex-col gap-4 font-light">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-lg font-bold text-text-primary">
+          {/* Tab Content */}
+          <Box sx={{ flex: 1, overflowY: "auto", p: 3, fontSize: 13, color: "text.secondary", lineHeight: 1.7 }}>
+            {/* Description Tab */}
+            {activeTab === 0 && (
+              <Stack spacing={2}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "text.primary" }}>
                     {problem.id}. {problem.title}
-                  </h2>
-                  <Badge
-                    variant={
-                      problem.difficulty === "Easy" ? "success" : problem.difficulty === "Medium" ? "warning" : "danger"
-                    }
-                    size="sm"
-                  >
-                    {problem.difficulty}
-                  </Badge>
-                </div>
+                  </Typography>
+                  <Chip
+                    label={problem.difficulty}
+                    color={getDifficultyColor(problem.difficulty)}
+                    size="small"
+                    sx={{ fontSize: 10, height: 20 }}
+                  />
+                </Box>
 
-                <div className="border-t border-border/30 my-2" />
+                <Divider />
 
-                {/* Body details */}
-                <div className="whitespace-pre-wrap leading-relaxed text-xs sm:text-sm text-text-primary font-normal">
+                <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", color: "text.primary", fontWeight: 400, fontSize: 13 }}>
                   {problem.description.replace(/###/g, "").replace(/\*\*/g, "")}
-                </div>
+                </Typography>
 
                 {/* Examples */}
-                <div className="flex flex-col gap-4 mt-4">
+                <Stack spacing={2} sx={{ mt: 2 }}>
                   {problem.examples.map((ex, idx) => (
-                    <div key={idx} className="p-4 bg-card/45 border border-border/50 rounded-lg text-xs">
-                      <div className="font-semibold text-text-primary mb-2">Example {idx + 1}:</div>
-                      <div className="font-mono flex flex-col gap-1 text-text-secondary">
-                        <div>
-                          <span className="text-text-primary font-medium">Input:</span> {ex.input}
-                        </div>
-                        <div>
-                          <span className="text-text-primary font-medium">Output:</span> {ex.output}
-                        </div>
+                    <Paper key={idx} variant="outlined" sx={{ p: 2, bgcolor: "action.hover", borderRadius: 2 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary", display: "block", mb: 1 }}>
+                        Example {idx + 1}:
+                      </Typography>
+                      <Box sx={{ fontFamily: "monospace", fontSize: 11, color: "text.secondary" }}>
+                        <Box><Typography component="span" sx={{ fontWeight: 600, color: "text.primary", fontSize: 11 }}>Input:</Typography> {ex.input}</Box>
+                        <Box><Typography component="span" sx={{ fontWeight: 600, color: "text.primary", fontSize: 11 }}>Output:</Typography> {ex.output}</Box>
                         {ex.explanation && (
-                          <div className="mt-1 leading-relaxed">
-                            <span className="text-text-primary font-medium">Explanation:</span> {ex.explanation}
-                          </div>
+                          <Box sx={{ mt: 0.5 }}>
+                            <Typography component="span" sx={{ fontWeight: 600, color: "text.primary", fontSize: 11 }}>Explanation:</Typography> {ex.explanation}
+                          </Box>
                         )}
-                      </div>
-                    </div>
+                      </Box>
+                    </Paper>
                   ))}
-                </div>
+                </Stack>
 
                 {/* Constraints */}
-                <div className="mt-4">
-                  <div className="font-semibold text-text-primary mb-2">Constraints:</div>
-                  <ul className="list-disc pl-5 flex flex-col gap-1.5 text-xs">
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary", display: "block", mb: 1 }}>
+                    Constraints:
+                  </Typography>
+                  <Box component="ul" sx={{ pl: 3, m: 0 }}>
                     {problem.constraints.map((c, idx) => (
-                      <li key={idx} className="font-mono text-text-secondary">{c}</li>
+                      <Box component="li" key={idx} sx={{ fontFamily: "monospace", fontSize: 11, color: "text.secondary", mb: 0.5 }}>
+                        {c}
+                      </Box>
                     ))}
-                  </ul>
-                </div>
+                  </Box>
+                </Box>
 
-                {/* Hints Accordion */}
-                <div className="mt-6 border-t border-border/30 pt-4">
-                  <div className="font-semibold text-text-primary mb-2">Hints:</div>
-                  <div className="flex flex-col gap-2">
+                {/* Hints */}
+                <Box sx={{ mt: 3, pt: 2, borderTop: "1px solid", borderColor: "divider" }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary", display: "block", mb: 1 }}>
+                    Hints:
+                  </Typography>
+                  <Stack spacing={1}>
                     {problem.hints.map((hint, idx) => (
-                      <details key={idx} className="group border border-border rounded-lg bg-card/25 p-3 cursor-pointer">
-                        <summary className="text-xs font-bold text-text-primary list-none flex justify-between items-center">
-                          <span>Hint {idx + 1}</span>
-                          <ChevronUp size={12} className="transform group-open:rotate-180 transition-transform" />
-                        </summary>
-                        <p className="text-xs text-text-secondary mt-2 leading-relaxed font-light">{hint}</p>
-                      </details>
+                      <Accordion key={idx} variant="outlined" sx={{ bgcolor: "action.hover", borderRadius: "8px !important", "&:before": { display: "none" } }}>
+                        <AccordionSummary expandIcon={<ExpandLess sx={{ fontSize: 14 }} />}>
+                          <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary" }}>
+                            Hint {idx + 1}
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ pt: 0 }}>
+                          <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.6 }}>
+                            {hint}
+                          </Typography>
+                        </AccordionDetails>
+                      </Accordion>
                     ))}
-                  </div>
-                </div>
-              </div>
+                  </Stack>
+                </Box>
+              </Stack>
             )}
 
-            {activeTab === "editorial" && (
-              <div className="flex flex-col gap-4">
-                <h3 className="text-base font-bold text-text-primary">Official Editorial Guide</h3>
-                <div className="border-t border-border/30 my-2" />
-                <div className="text-xs sm:text-sm text-text-primary font-light whitespace-pre-wrap leading-relaxed">
+            {/* Editorial Tab */}
+            {activeTab === 1 && (
+              <Stack spacing={2}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "text.primary" }}>
+                  Official Editorial Guide
+                </Typography>
+                <Divider />
+                <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", color: "text.primary", fontWeight: 300, lineHeight: 1.8 }}>
                   {problem.editorial}
-                </div>
-              </div>
+                </Typography>
+              </Stack>
             )}
 
-            {activeTab === "discussion" && (
-              <div className="flex flex-col gap-6">
-                <h3 className="text-base font-bold text-text-primary">Thread Discussions</h3>
-                
-                {/* Comment creator */}
-                <form onSubmit={handlePostComment} className="flex gap-2">
-                  <input
-                    type="text"
+            {/* Discussion Tab */}
+            {activeTab === 2 && (
+              <Stack spacing={3}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "text.primary" }}>
+                  Thread Discussions
+                </Typography>
+
+                <Box component="form" onSubmit={handlePostComment} sx={{ display: "flex", gap: 1 }}>
+                  <TextField
+                    fullWidth
+                    size="small"
                     placeholder="Write a comment or solution alternative..."
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    className="flex-1 bg-card border border-border rounded-lg text-xs px-3.5 py-2 focus:outline-none"
+                    sx={{ fontSize: 12, "& .MuiInputBase-input": { fontSize: 12 } }}
                   />
-                  <Button type="submit" size="sm">Post</Button>
-                </form>
+                  <Button type="submit" variant="contained" size="small" sx={{ textTransform: "none", fontSize: 12, whiteSpace: "nowrap" }}>
+                    Post
+                  </Button>
+                </Box>
 
-                {/* Comments List */}
-                <div className="flex flex-col gap-4">
+                <Stack spacing={2}>
                   {problem.discussions.length === 0 ? (
-                    <div className="text-center text-xs text-text-secondary py-6">No discussions started. Be the first to comment!</div>
+                    <Typography variant="caption" sx={{ textAlign: "center", color: "text.secondary", py: 4, display: "block" }}>
+                      No discussions started. Be the first to comment!
+                    </Typography>
                   ) : (
                     problem.discussions.map((comm) => (
-                      <div key={comm.id} className="p-3 border border-border/40 bg-card/20 rounded-lg flex gap-3">
-                        <img src={comm.avatar} alt={comm.username} className="w-7 h-7 rounded-full bg-card border" />
-                        <div>
-                          <div className="flex gap-2 items-center">
-                            <span className="text-xs font-bold text-text-primary">{comm.username}</span>
-                            <span className="text-[9px] text-text-secondary">{comm.date}</span>
-                          </div>
-                          <p className="text-xs text-text-secondary font-light mt-1 leading-relaxed">{comm.text}</p>
-                          <div className="flex items-center gap-1.5 mt-2 text-[10px] text-text-secondary">
-                            <button className="hover:text-primary cursor-pointer">▲ Upvote ({comm.likes})</button>
-                          </div>
-                        </div>
-                      </div>
+                      <Paper key={comm.id} variant="outlined" sx={{ p: 1.5, borderRadius: 2, display: "flex", gap: 1.5 }}>
+                        <Avatar src={comm.avatar} alt={comm.username} sx={{ width: 28, height: 28, border: "1px solid", borderColor: "divider" }} />
+                        <Box>
+                          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                            <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary" }}>{comm.username}</Typography>
+                            <Typography sx={{ fontSize: 9, color: "text.secondary" }}>{comm.date}</Typography>
+                          </Box>
+                          <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.6, display: "block", mt: 0.5 }}>
+                            {comm.text}
+                          </Typography>
+                          <Typography sx={{ fontSize: 10, color: "text.secondary", mt: 1, cursor: "pointer", "&:hover": { color: "primary.main" } }}>
+                            ▲ Upvote ({comm.likes})
+                          </Typography>
+                        </Box>
+                      </Paper>
                     ))
                   )}
-                </div>
-              </div>
+                </Stack>
+              </Stack>
             )}
-          </div>
-        </div>
+          </Box>
+        </Paper>
 
-        {/* Right Pane (Monaco Editor layout) */}
-        <div className="flex flex-col gap-4 h-full">
-          <div className="glass rounded-xl border border-border/50 overflow-hidden flex flex-col flex-1 bg-surface">
-            {/* Editor toolbar */}
-            <div className="flex justify-between items-center bg-card/45 px-4 py-2.5 border-b border-border/40">
-              <div className="flex items-center gap-3">
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="bg-surface border border-border text-text-primary text-xs rounded-lg px-2.5 py-1 focus:outline-none cursor-pointer"
-                >
-                  <option value="javascript">JavaScript</option>
-                  <option value="python">Python</option>
-                  <option value="cpp">C++</option>
-                  <option value="java">Java</option>
-                </select>
+        {/* Right Pane - Editor */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, height: "100%" }}>
+          <Paper
+            variant="outlined"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              overflow: "hidden",
+              borderRadius: 3,
+              bgcolor: "background.paper"
+            }}
+          >
+            {/* Editor Toolbar */}
+            <Box sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              bgcolor: "action.hover",
+              px: 2,
+              py: 1,
+              borderBottom: "1px solid",
+              borderColor: "divider"
+            }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <FormControl size="small">
+                  <Select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    sx={{ fontSize: 12, height: 30, "& .MuiSelect-select": { py: 0.5 } }}
+                  >
+                    <MenuItem value="javascript" sx={{ fontSize: 12 }}>JavaScript</MenuItem>
+                    <MenuItem value="python" sx={{ fontSize: 12 }}>Python</MenuItem>
+                    <MenuItem value="cpp" sx={{ fontSize: 12 }}>C++</MenuItem>
+                    <MenuItem value="java" sx={{ fontSize: 12 }}>Java</MenuItem>
+                  </Select>
+                </FormControl>
 
-                <button
+                <Typography
+                  variant="caption"
                   onClick={() => {
                     const template = problem.templates[language];
-                    setLanguage(language);
                     setEditorValue(template);
                     addNotification("Editor Reset", "The workspace template has been reset.", "info");
                   }}
-                  className="text-[10px] text-text-secondary hover:text-text-primary cursor-pointer hover:underline"
+                  sx={{ cursor: "pointer", color: "text.secondary", fontSize: 10, "&:hover": { color: "text.primary", textDecoration: "underline" } }}
                 >
                   Reset Template
-                </button>
-              </div>
+                </Typography>
+              </Box>
 
-              <div className="text-[10px] text-text-secondary font-mono flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                <span>Compiler Online</span>
-              </div>
-            </div>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "success.main" }} />
+                <Typography variant="caption" sx={{ fontSize: 10, color: "text.secondary", fontFamily: "monospace" }}>
+                  Compiler Online
+                </Typography>
+              </Box>
+            </Box>
 
-            {/* Monaco Editor Component */}
-            <div className="flex-1 w-full bg-[#1e1e1e] relative min-h-[300px]">
+            {/* Monaco Editor */}
+            <Box sx={{ flex: 1, width: "100%", bgcolor: "#1e1e1e", position: "relative", minHeight: 300 }}>
               <Editor
                 height="100%"
-                language={language === "cpp" ? "cpp" : language}
+                language={language}
                 theme="vs-dark"
                 value={editorValue}
                 onChange={(val) => setEditorValue(val || "")}
@@ -374,99 +508,161 @@ export const ProblemDetails = () => {
                   padding: { top: 12 }
                 }}
               />
-            </div>
+            </Box>
 
-            {/* Console output slider */}
+            {/* Console Output */}
             {consoleOpen && (
-              <div className="h-48 border-t border-border bg-[#0e0e10] p-4 flex flex-col font-mono text-xs text-left">
-                <div className="flex justify-between items-center text-text-secondary border-b border-border/40 pb-2 mb-2">
-                  <span className="font-bold flex items-center gap-1.5">
-                    <Terminal size={14} /> Compilation Console Logs
-                  </span>
-                  <button
+              <Box sx={{
+                height: 192,
+                borderTop: "1px solid",
+                borderColor: "divider",
+                bgcolor: "#0e0e10",
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                fontFamily: "monospace",
+                fontSize: 12
+              }}>
+                <Box sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  color: "text.secondary",
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                  pb: 1,
+                  mb: 1
+                }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, fontWeight: 700 }}>
+                    <Terminal sx={{ fontSize: 14 }} />
+                    <Typography variant="caption" sx={{ fontWeight: 700, fontFamily: "monospace" }}>
+                      Compilation Console Logs
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant="caption"
                     onClick={() => setConsoleOpen(false)}
-                    className="hover:text-text-primary text-[10px] uppercase font-bold"
+                    sx={{ cursor: "pointer", fontSize: 10, fontWeight: 700, textTransform: "uppercase", "&:hover": { color: "text.primary" } }}
                   >
                     Close
-                  </button>
-                </div>
-                <div className="flex-1 overflow-y-auto whitespace-pre-wrap leading-relaxed text-text-primary">
+                  </Typography>
+                </Box>
+                <Box sx={{ flex: 1, overflowY: "auto", whiteSpace: "pre-wrap", lineHeight: 1.6, color: "text.primary", fontSize: 11 }}>
                   {runLogs}
-                </div>
-              </div>
+                </Box>
+              </Box>
             )}
 
-            {/* Footer triggers */}
-            <div className="bg-card/45 px-4 py-3 border-t border-border/40 flex justify-between items-center">
+            {/* Footer */}
+            <Box sx={{
+              bgcolor: "action.hover",
+              px: 2,
+              py: 1.5,
+              borderTop: "1px solid",
+              borderColor: "divider",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}>
               <Button
-                variant="outline"
-                size="sm"
+                variant="outlined"
+                size="small"
                 onClick={() => setConsoleOpen(!consoleOpen)}
-                className="text-xs"
+                sx={{ textTransform: "none", fontSize: 12 }}
               >
                 Console
               </Button>
 
-              <div className="flex gap-2">
+              <Stack direction="row" spacing={1}>
                 <Button
-                  variant="secondary"
-                  size="sm"
+                  variant="contained"
+                  color="inherit"
+                  size="small"
                   onClick={handleRunCode}
-                  loading={isCompiling}
-                  className="font-semibold text-xs"
+                  disabled={isCompiling}
+                  startIcon={isCompiling ? <CircularProgress size={12} /> : <PlayArrow sx={{ fontSize: 14 }} />}
+                  sx={{ textTransform: "none", fontSize: 12, fontWeight: 600 }}
                 >
-                  <Play size={12} /> Run Code
+                  Run Code
                 </Button>
                 <Button
-                  variant="primary"
-                  size="sm"
+                  variant="contained"
+                  color="primary"
+                  size="small"
                   onClick={handleSubmitCode}
-                  loading={isCompiling}
-                  className="font-semibold text-xs"
+                  disabled={isCompiling}
+                  startIcon={isCompiling ? <CircularProgress size={12} color="inherit" /> : null}
+                  sx={{ textTransform: "none", fontSize: 12, fontWeight: 600 }}
                 >
                   Submit Code
                 </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+              </Stack>
+            </Box>
+          </Paper>
+        </Box>
+      </Box>
 
-      {/* Success Modal Popup */}
-      <Modal isOpen={isSubmitOpen} onClose={() => setIsSubmitOpen(false)} title="Solution Verified">
-        <div className="flex flex-col items-center text-center p-4">
-          <div className="w-14 h-14 rounded-full bg-success/10 text-success flex items-center justify-center mb-4">
-            <CheckCircle size={32} />
-          </div>
-          <h3 className="text-base font-extrabold text-text-primary">Assertion Success! 🎉</h3>
-          <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
-            All testcase inputs verified. You solved <strong>{problem.title}</strong> and updated your stats!
-          </p>
+      {/* Success Modal */}
+      <Modal open={isSubmitOpen} onClose={() => setIsSubmitOpen(false)}>
+        <Box sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "background.paper",
+          borderRadius: 3,
+          boxShadow: 24,
+          p: 4
+        }}>
+          <Stack spacing={2} alignItems="center" textAlign="center">
+            <Box sx={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              bgcolor: "success.light",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}>
+              <CheckCircle sx={{ fontSize: 32, color: "success.main" }} />
+            </Box>
 
-          <div className="flex gap-3.5 mt-6 w-full">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsSubmitOpen(false)}
-              className="flex-1 text-xs"
-            >
-              Review Code
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => {
-                setIsSubmitOpen(false);
-                navigate("/problems");
-              }}
-              className="flex-1 text-xs"
-            >
-              Back to Catalog
-            </Button>
-          </div>
-        </div>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "text.primary" }}>
+              Assertion Success! 🎉
+            </Typography>
+
+            <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.6 }}>
+              All testcase inputs verified. You solved <strong>{problem.title}</strong> and updated your stats!
+            </Typography>
+
+            <Stack direction="row" spacing={1.5} sx={{ width: "100%", mt: 2 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setIsSubmitOpen(false)}
+                sx={{ flex: 1, textTransform: "none", fontSize: 12 }}
+              >
+                Review Code
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={() => {
+                  setIsSubmitOpen(false);
+                  navigate("/problems");
+                }}
+                sx={{ flex: 1, textTransform: "none", fontSize: 12 }}
+              >
+                Back to Catalog
+              </Button>
+            </Stack>
+          </Stack>
+        </Box>
       </Modal>
-    </div>
+    </Container>
   );
 };
+
 export default ProblemDetails;

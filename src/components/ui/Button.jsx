@@ -1,5 +1,6 @@
 import React from "react";
-import { motion } from "framer-motion";
+import ButtonMui from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export const Button = ({
   children,
@@ -7,48 +8,121 @@ export const Button = ({
   type = "button",
   variant = "primary", // primary | secondary | outline | ghost | danger | success
   size = "md", // sm | md | lg
-  className = "",
   disabled = false,
   loading = false,
   icon: Icon,
   ...props
 }) => {
-  const baseStyle = "relative inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg focus:ring-primary disabled:opacity-50 disabled:pointer-events-none cursor-pointer";
-  
-  const variants = {
-    primary: "bg-primary text-text-primary hover:bg-primary-dark shadow-[0_0_15px_rgba(99,102,241,0.3)]",
-    secondary: "bg-surface border border-border text-text-primary hover:bg-card",
-    outline: "bg-transparent border border-border text-text-primary hover:bg-card hover:border-text-secondary",
-    ghost: "bg-transparent text-text-secondary hover:text-text-primary hover:bg-card/40",
-    danger: "bg-danger text-text-primary hover:bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.3)] focus:ring-danger",
-    success: "bg-success text-text-primary hover:bg-green-600 shadow-[0_0_15px_rgba(34,197,94,0.3)] focus:ring-success"
+  const getVariantStyles = () => {
+    switch (variant) {
+      case "primary":
+        return {
+          backgroundColor: "primary.main",
+          color: "background.default",
+          border: "1px solid transparent",
+          boxShadow: "0 0 15px rgba(212, 175, 55, 0.3)",
+          "&:hover": {
+            backgroundColor: "primary.dark",
+          },
+        };
+      case "secondary":
+        return {
+          backgroundColor: "background.paper",
+          border: "1px solid",
+          borderColor: "divider",
+          color: "text.primary",
+          "&:hover": {
+            backgroundColor: "background.card",
+          },
+        };
+      case "outline":
+        return {
+          backgroundColor: "transparent",
+          border: "1px solid",
+          borderColor: "divider",
+          color: "text.primary",
+          "&:hover": {
+            backgroundColor: "background.card",
+            borderColor: "text.secondary",
+          },
+        };
+      case "ghost":
+        return {
+          backgroundColor: "transparent",
+          color: "text.secondary",
+          border: "1px solid transparent",
+          "&:hover": {
+            color: "text.primary",
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+          },
+        };
+      case "danger":
+        return {
+          backgroundColor: "#D32F2F",
+          color: "#FFFFFF",
+          border: "1px solid transparent",
+          boxShadow: "0 0 15px rgba(211, 47, 47, 0.3)",
+          "&:hover": {
+            backgroundColor: "#C62828",
+          },
+        };
+      case "success":
+        return {
+          backgroundColor: "#2E7D32",
+          color: "#FFFFFF",
+          border: "1px solid transparent",
+          boxShadow: "0 0 15px rgba(46, 125, 50, 0.3)",
+          "&:hover": {
+            backgroundColor: "#1B5E20",
+          },
+        };
+      default:
+        return {};
+    }
   };
 
-  const sizes = {
-    sm: "px-3 py-1.5 text-xs gap-1.5",
-    md: "px-4 py-2 text-sm gap-2",
-    lg: "px-6 py-3 text-base gap-2.5"
+  const getPadding = () => {
+    switch (size) {
+      case "sm":
+        return { px: 1.5, py: 0.75, fontSize: "11px" };
+      case "lg":
+        return { px: 3, py: 1.5, fontSize: "16px" };
+      default:
+        return { px: 2, py: 1, fontSize: "13px" };
+    }
   };
 
   return (
-    <motion.button
+    <ButtonMui
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      whileHover={{ y: -1, scale: 1.02 }}
-      whileTap={{ scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 500, damping: 15 }}
-      className={`${baseStyle} ${variants[variant]} ${sizes[size]} ${className}`}
+      sx={{
+        textTransform: "none",
+        fontWeight: "bold",
+        borderRadius: "8px",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: size === "sm" ? 1 : 1.25,
+        minWidth: 0,
+        lineHeight: 1.2,
+        ...getPadding(),
+        ...getVariantStyles(),
+      }}
       {...props}
     >
       {loading && (
-        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-        </svg>
+        <CircularProgress
+          size={14}
+          color="inherit"
+          sx={{ mr: 0.5 }}
+        />
       )}
       {!loading && Icon && <Icon size={size === "sm" ? 14 : size === "lg" ? 18 : 16} />}
       {children}
-    </motion.button>
+    </ButtonMui>
   );
 };
+
+export default Button;

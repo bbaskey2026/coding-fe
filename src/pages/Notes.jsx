@@ -1,34 +1,28 @@
 import React, { useState } from "react";
-import { Folder, FileText, Plus, Pin, Trash2, Edit3, Eye, FileEdit, FolderPlus } from "lucide-react";
+import { Folder, FileText, Plus, Pin, Trash2, Eye, FileEdit, FolderPlus } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 
-export const Notes = () => {
-  const {
-    notes,
-    folders,
-    addNote,
-    updateNote,
-    deleteNote,
-    createFolder,
-    addNotification
-  } = useApp();
+// MUI Imports
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import ButtonBase from "@mui/material/ButtonBase";
+import InputBase from "@mui/material/InputBase";
 
-  // Active workspace note & folder navigation
+export const Notes = () => {
+  const { notes, folders, addNote, updateNote, deleteNote, createFolder, addNotification } = useApp();
+
   const [selectedFolder, setSelectedFolder] = useState("Dynamic Programming");
   const [activeNoteId, setActiveNoteId] = useState(1);
-  const [editMode, setEditMode] = useState(false); // false = preview, true = edit
-
-  // Input states for note additions
+  const [editMode, setEditMode] = useState(false);
   const [newFolderTitle, setNewFolderTitle] = useState("");
   const [newFolderOpen, setNewFolderOpen] = useState(false);
 
-  const activeNote = notes.find((n) => n.id === activeNoteId) || notes[0];
-
-  // Helper to compile filtered notes
-  const filteredNotes = notes.filter((n) => n.folder === selectedFolder);
+  const activeNote = notes.find(n => n.id === activeNoteId) || notes[0];
+  const filteredNotes = notes.filter(n => n.folder === selectedFolder);
 
   const handleCreateNote = () => {
     const created = addNote(selectedFolder, "New Coding Note", "# New Note\n\nWrite your thoughts here...");
@@ -45,205 +39,170 @@ export const Notes = () => {
     setNewFolderOpen(false);
   };
 
-  // Simple Markdown-to-HTML parser function using regex
   const renderMarkdown = (text) => {
     if (!text) return "";
-    let html = text
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-    
-    // Headings
-    html = html.replace(/^# (.*$)/gim, '<h1 class="text-lg font-bold text-text-primary mt-4 mb-2 pb-1 border-b border-border/30">$1</h1>');
-    html = html.replace(/^## (.*$)/gim, '<h2 class="text-base font-bold text-text-primary mt-3 mb-1.5">$1</h2>');
-    html = html.replace(/^### (.*$)/gim, '<h3 class="text-sm font-bold text-text-primary mt-2 mb-1">$1</h3>');
-    
-    // Codeblocks
-    html = html.replace(/```([\s\S]*?)```/gm, '<pre class="bg-zinc-950/60 p-3 rounded-lg border border-border/80 text-xs font-mono my-3 overflow-x-auto text-primary">$1</pre>');
-    
-    // Inline code
-    html = html.replace(/`([^`]+)`/g, '<code class="bg-zinc-800 text-text-primary px-1.5 py-0.5 rounded text-[11px] font-mono">$1</code>');
-    
-    // Bold
-    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-text-primary">$1</strong>');
-    
-    // Linebreaks
+    let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    html = html.replace(/^# (.*$)/gim, '<h1 style="font-size:18px;font-weight:bold;color:#FFFFFF;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(44,44,44,0.3)">$1</h1>');
+    html = html.replace(/^## (.*$)/gim, '<h2 style="font-size:16px;font-weight:bold;color:#FFFFFF;margin:12px 0 6px">$1</h2>');
+    html = html.replace(/^### (.*$)/gim, '<h3 style="font-size:14px;font-weight:bold;color:#FFFFFF;margin:8px 0 4px">$1</h3>');
+    html = html.replace(/```([\s\S]*?)```/gm, '<pre style="background:rgba(0,0,0,0.6);padding:12px;border-radius:8px;border:1px solid rgba(44,44,44,0.8);font-size:12px;font-family:monospace;margin:12px 0;overflow-x:auto;color:#D4AF37">$1</pre>');
+    html = html.replace(/`([^`]+)`/g, '<code style="background:rgba(39,39,42,0.8);color:#FFFFFF;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace">$1</code>');
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong style="font-weight:bold;color:#FFFFFF">$1</strong>');
     html = html.replace(/\n/g, "<br />");
-    
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-24 pb-12 flex flex-col gap-6 text-left h-screen">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-text-primary">Notes Workspace</h2>
-          <p className="text-xs text-text-secondary mt-1">Create study sheets, syntax bookmarks, and algorithmic templates.</p>
-        </div>
-
-        <Button size="sm" className="font-semibold gap-1.5" onClick={handleCreateNote}>
+    <Box sx={{ maxWidth: "1280px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left", height: "100vh" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>Notes Workspace</Typography>
+          <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
+            Create study sheets, syntax bookmarks, and algorithmic templates.
+          </Typography>
+        </Box>
+        <Button size="sm" onClick={handleCreateNote} style={{ fontWeight: "bold", display: "flex", alignItems: "center", gap: "6px" }}>
           <Plus size={14} /> Add Note
         </Button>
-      </div>
+      </Box>
 
       {/* Main Splitscreen workspace */}
-      <div className="grid lg:grid-cols-4 gap-6 flex-1 min-h-[500px] items-stretch">
+      <Grid container spacing={3} sx={{ flex: 1, minHeight: "500px", alignItems: "stretch" }}>
         {/* Leftmost Folder sidebar */}
-        <div className="flex flex-col gap-4">
-          <Card className="p-4 flex flex-col gap-3">
-            <div className="flex justify-between items-center text-[10px] font-bold text-text-secondary uppercase">
-              <span>Folders</span>
-              <button
-                onClick={() => setNewFolderOpen(!newFolderOpen)}
-                className="text-primary hover:text-primary-dark cursor-pointer"
-              >
-                <FolderPlus size={14} />
-              </button>
-            </div>
+        <Grid item xs={12} lg={3}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Card style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "10px", fontWeight: "bold", color: "text.secondary", textTransform: "uppercase" }}>
+                <span>Folders</span>
+                <ButtonBase onClick={() => setNewFolderOpen(!newFolderOpen)} sx={{ color: "primary.main", p: 0.25, borderRadius: "4px" }}>
+                  <FolderPlus size={14} />
+                </ButtonBase>
+              </Box>
 
-            {newFolderOpen && (
-              <form onSubmit={handleCreateFolder} className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Folder name..."
-                  value={newFolderTitle}
-                  onChange={(e) => setNewFolderTitle(e.target.value)}
-                  className="bg-surface border border-border rounded text-[10px] px-2 py-1 flex-1 focus:outline-none text-text-primary"
-                  required
-                />
-                <Button type="submit" size="sm" className="text-[10px] px-2 py-1 h-fit">Add</Button>
-              </form>
-            )}
+              {newFolderOpen && (
+                <Box component="form" onSubmit={handleCreateFolder} sx={{ display: "flex", gap: 1 }}>
+                  <InputBase
+                    placeholder="Folder name..." value={newFolderTitle} onChange={(e) => setNewFolderTitle(e.target.value)} required
+                    sx={{ flex: 1, backgroundColor: "background.paper", border: "1px solid", borderColor: "divider", borderRadius: "4px", px: 1, fontSize: "10px", color: "text.primary" }}
+                  />
+                  <Button type="submit" size="sm" style={{ fontSize: "10px", padding: "4px 8px" }}>Add</Button>
+                </Box>
+              )}
 
-            <div className="flex flex-col gap-1 text-xs">
-              {folders.map((fold) => (
-                <button
-                  key={fold}
-                  onClick={() => {
-                    setSelectedFolder(fold);
-                    // Select first note in folder if exists
-                    const firstNote = notes.find((n) => n.folder === fold);
-                    if (firstNote) setActiveNoteId(firstNote.id);
-                  }}
-                  className={`w-full text-left px-2.5 py-2 rounded-lg cursor-pointer transition-colors flex items-center gap-2 ${
-                    selectedFolder === fold
-                      ? "bg-primary/10 text-primary font-bold"
-                      : "text-text-secondary hover:text-text-primary hover:bg-card/40"
-                  }`}
-                >
-                  <Folder size={14} />
-                  <span className="truncate">{fold}</span>
-                </button>
-              ))}
-            </div>
-          </Card>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                {folders.map((fold) => (
+                  <ButtonBase key={fold}
+                    onClick={() => { setSelectedFolder(fold); const firstNote = notes.find(n => n.folder === fold); if (firstNote) setActiveNoteId(firstNote.id); }}
+                    sx={{
+                      width: "100%", textAlign: "left", px: 1.25, py: 1, borderRadius: "8px", fontSize: "12px",
+                      color: selectedFolder === fold ? "primary.main" : "text.secondary",
+                      backgroundColor: selectedFolder === fold ? "rgba(212,175,55,0.1)" : "transparent",
+                      fontWeight: selectedFolder === fold ? "bold" : "normal",
+                      display: "flex", alignItems: "center", gap: 1, transition: "all 0.2s",
+                      "&:hover": { color: "text.primary", backgroundColor: "rgba(26,26,26,0.4)" },
+                    }}>
+                    <Folder size={14} style={{ flexShrink: 0 }} />
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fold}</span>
+                  </ButtonBase>
+                ))}
+              </Box>
+            </Card>
 
-          {/* Files inside selected folder list */}
-          <Card className="p-4 flex flex-col gap-2 flex-1">
-            <span className="text-[10px] font-bold text-text-secondary uppercase mb-2">Files</span>
-            {filteredNotes.length === 0 ? (
-              <div className="text-[10px] text-text-secondary text-center py-6">No files in folder</div>
-            ) : (
-              filteredNotes.map((note) => (
-                <button
-                  key={note.id}
-                  onClick={() => {
-                    setActiveNoteId(note.id);
-                    setEditMode(false);
-                  }}
-                  className={`w-full text-left px-2 py-2 rounded-lg cursor-pointer transition-colors flex items-center gap-2 text-xs border ${
-                    activeNoteId === note.id
-                      ? "bg-surface border-primary text-text-primary"
-                      : "bg-card border-transparent text-text-secondary hover:bg-card/60 hover:text-text-primary"
-                  }`}
-                >
-                  <FileText size={14} className="shrink-0" />
-                  <span className="truncate flex-1">{note.title}</span>
-                  {note.pinned && <Pin size={10} className="text-primary shrink-0 rotate-45" />}
-                </button>
-              ))
-            )}
-          </Card>
-        </div>
+            {/* Files inside selected folder */}
+            <Card style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", textTransform: "uppercase", display: "block", mb: 1, fontSize: "10px" }}>Files</Typography>
+              {filteredNotes.length === 0 ? (
+                <Typography variant="caption" sx={{ color: "text.secondary", textAlign: "center", py: 3, display: "block", fontSize: "10px" }}>No files in folder</Typography>
+              ) : (
+                filteredNotes.map((note) => (
+                  <ButtonBase key={note.id}
+                    onClick={() => { setActiveNoteId(note.id); setEditMode(false); }}
+                    sx={{
+                      width: "100%", textAlign: "left", px: 1, py: 1, borderRadius: "8px", border: "1px solid", fontSize: "12px",
+                      borderColor: activeNoteId === note.id ? "primary.main" : "transparent",
+                      backgroundColor: activeNoteId === note.id ? "background.paper" : "background.card",
+                      color: activeNoteId === note.id ? "text.primary" : "text.secondary",
+                      display: "flex", alignItems: "center", gap: 1, transition: "all 0.2s",
+                      "&:hover": { color: "text.primary", backgroundColor: "rgba(26,26,26,0.6)" },
+                    }}>
+                    <FileText size={14} style={{ flexShrink: 0 }} />
+                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{note.title}</span>
+                    {note.pinned && <Pin size={10} style={{ color: "#D4AF37", flexShrink: 0, transform: "rotate(45deg)" }} />}
+                  </ButtonBase>
+                ))
+              )}
+            </Card>
+          </Box>
+        </Grid>
 
         {/* Center / Right editor workspace */}
-        <div className="lg:col-span-3">
+        <Grid item xs={12} lg={9}>
           {activeNote ? (
-            <Card className="p-6 h-full flex flex-col justify-between">
+            <Card style={{ padding: "24px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               {/* Note Header */}
-              <div className="pb-4 border-b border-border/40 mb-4 flex justify-between items-center">
-                <div className="flex-1 mr-4">
+              <Box sx={{ pb: 2, borderBottom: "1px solid rgba(44,44,44,0.4)", mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box sx={{ flex: 1, mr: 2 }}>
                   {editMode ? (
-                    <input
-                      type="text"
+                    <InputBase
                       value={activeNote.title}
                       onChange={(e) => updateNote(activeNote.id, { title: e.target.value })}
-                      className="text-base font-extrabold text-text-primary bg-card border border-border rounded px-2.5 py-1 focus:outline-none w-full max-w-sm"
+                      sx={{ fontSize: "16px", fontWeight: "bold", color: "text.primary", backgroundColor: "background.card", border: "1px solid", borderColor: "divider", borderRadius: "4px", px: 1.25, py: 0.5, width: "100%", maxWidth: 320 }}
                     />
                   ) : (
-                    <h3 className="text-base font-extrabold text-text-primary flex items-center gap-2">
-                      {activeNote.title}
-                      {activeNote.pinned && <Pin size={12} className="text-primary rotate-45" />}
-                    </h3>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "text.primary" }}>{activeNote.title}</Typography>
+                      {activeNote.pinned && <Pin size={12} style={{ color: "#D4AF37", transform: "rotate(45deg)" }} />}
+                    </Box>
                   )}
-                  <span className="text-[9px] text-text-secondary mt-1 block">Folder: {activeNote.folder}</span>
-                </div>
+                  <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: 0.25, fontSize: "9px" }}>Folder: {activeNote.folder}</Typography>
+                </Box>
 
-                {/* Edit / Preview tabs */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setEditMode(!editMode)}
-                    className="p-1.5 rounded-lg border border-border bg-card text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <ButtonBase onClick={() => setEditMode(!editMode)}
                     title={editMode ? "Preview Mode" : "Edit Mode"}
-                  >
+                    sx={{ p: 0.75, borderRadius: "8px", border: "1px solid", borderColor: "divider", backgroundColor: "background.card", color: "text.secondary", "&:hover": { color: "text.primary" } }}>
                     {editMode ? <Eye size={14} /> : <FileEdit size={14} />}
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      deleteNote(activeNote.id);
-                      // Select another remaining note
-                      const remaining = notes.filter((n) => n.id !== activeNote.id);
-                      if (remaining.length > 0) setActiveNoteId(remaining[0].id);
-                    }}
-                    className="p-1.5 rounded-lg border border-border bg-card text-danger hover:bg-danger/10 cursor-pointer transition-colors"
+                  </ButtonBase>
+                  <ButtonBase
+                    onClick={() => { deleteNote(activeNote.id); const remaining = notes.filter(n => n.id !== activeNote.id); if (remaining.length > 0) setActiveNoteId(remaining[0].id); }}
                     title="Delete Note"
-                  >
+                    sx={{ p: 0.75, borderRadius: "8px", border: "1px solid", borderColor: "divider", backgroundColor: "background.card", color: "#D32F2F", "&:hover": { backgroundColor: "rgba(211,47,47,0.1)" } }}>
                     <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
+                  </ButtonBase>
+                </Box>
+              </Box>
 
               {/* Note Body editor */}
-              <div className="flex-1 my-4 text-xs sm:text-sm text-text-secondary leading-relaxed">
+              <Box sx={{ flex: 1, my: 2, fontSize: { xs: "12px", sm: "14px" }, color: "text.secondary", lineHeight: 1.6 }}>
                 {editMode ? (
-                  <textarea
+                  <InputBase
+                    component="textarea" multiline
                     value={activeNote.content}
                     onChange={(e) => updateNote(activeNote.id, { content: e.target.value })}
                     rows={12}
-                    className="w-full h-full min-h-[300px] bg-card border border-border text-text-primary rounded-xl p-4 font-mono text-xs focus:outline-none resize-none"
+                    sx={{ width: "100%", minHeight: "300px", backgroundColor: "background.card", border: "1px solid", borderColor: "divider", color: "text.primary", borderRadius: "12px", p: 2, fontFamily: "monospace", fontSize: "12px", resize: "none" }}
                   />
                 ) : (
-                  <div className="text-left select-text font-light p-2 max-w-none">
+                  <Box sx={{ textAlign: "left", userSelect: "text", fontWeight: "light", p: 1, maxWidth: "none" }}>
                     {renderMarkdown(activeNote.content)}
-                  </div>
+                  </Box>
                 )}
-              </div>
+              </Box>
 
               {/* Bottom status bar */}
-              <div className="border-t border-border/30 pt-3 flex justify-between items-center text-[10px] text-text-secondary">
+              <Box sx={{ borderTop: "1px solid rgba(44,44,44,0.3)", pt: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "10px", color: "text.secondary" }}>
                 <span>Auto-saved locally</span>
-                <span className="font-mono">{activeNote.content?.length || 0} characters</span>
-              </div>
+                <span style={{ fontFamily: "monospace" }}>{activeNote.content?.length || 0} characters</span>
+              </Box>
             </Card>
           ) : (
-            <div className="glass p-20 text-center text-xs text-text-secondary rounded-xl flex items-center justify-center h-full">
+            <Box className="glass" sx={{ p: 10, textAlign: "center", fontSize: "12px", color: "text.secondary", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
               Create a note using the 'Add Note' button to begin writing
-            </div>
+            </Box>
           )}
-        </div>
-      </div>
-    </div>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 export default Notes;

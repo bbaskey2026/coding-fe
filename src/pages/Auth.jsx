@@ -1,309 +1,469 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldAlert, Mail, Lock, User, ArrowLeft, KeyRound, Key } from "lucide-react";
+import { ShieldAlert, Mail, Lock, User, ArrowLeft, KeyRound, Terminal, CheckCircle2 } from "lucide-react";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
 import { useApp } from "../context/AppContext";
+import { useAuth } from "../context/AuthContext";
+
+// MUI Imports
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import InputBase from "@mui/material/InputBase";
 
 export const Auth = () => {
-  const [screen, setScreen] = useState("login"); // login | register | forgot | otp | reset
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [screen,      setScreen]      = useState("login"); // login | register | forgot | otp | reset
+  const [email,       setEmail]       = useState("");
+  const [password,    setPassword]    = useState("");
+  const [username,    setUsername]    = useState("");
+  const [otp,         setOtp]         = useState(["", "", "", ""]);
   const [newPassword, setNewPassword] = useState("");
-  
-  const { addNotification } = useApp();
-  const navigate = useNavigate();
+  const [otpFlow,     setOtpFlow]     = useState("register"); // "register" | "forgot"
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldError,   setFieldError]   = useState("");
 
+  const { addNotification }                             = useApp();
+  const { login, register, verifyOtp, forgotPassword, resetPassword } = useAuth();
+  const navigate  = useNavigate();
+  const location  = useLocation();
+
+  // Redirect back to the page the user originally tried to visit
+  const from = location.state?.from?.pathname || "/";
+
+  // Parse mode query parameter on mount or route update
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const mode = params.get("mode");
+    if (mode && ["login", "register", "forgot", "otp", "reset"].includes(mode)) {
+      setScreen(mode);
+      setFieldError("");
+    }
+  }, [location.search]);
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  const withLoading = async (fn) => {
+    setIsSubmitting(true);
+    setFieldError("");
+    try {
+      await fn();
+    } catch (err) {
+      const msg = err?.message || "Something went wrong. Please try again.";
+      setFieldError(msg);
+      addNotification("Error", msg, "error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ── Handlers ─────────────────────────────────────────────────────────────
   const handleLogin = (e) => {
     e.preventDefault();
     if (!email || !password) return;
-    addNotification("Logged In", `Welcome back to CodeForge! Session initiated.`, "success");
-    navigate("/");
+    withLoading(async () => {
+      await login({ email, password });
+      addNotification("Welcome back!", "Session started successfully.", "success");
+      navigate(from, { replace: true });
+    });
   };
 
   const handleRegister = (e) => {
     e.preventDefault();
     if (!email || !password || !username) return;
-    setScreen("otp");
-    addNotification("OTP Verification Sent", `A verification code was dispatched to ${email}`, "info");
+    withLoading(async () => {
+      await register({ username, email, password });
+      setOtpFlow("register");
+      setScreen("otp");
+      addNotification("OTP Sent", `A 4-digit code was dispatched to ${email}.`, "info");
+    });
   };
 
   const handleForgot = (e) => {
     e.preventDefault();
     if (!email) return;
-    setScreen("otp");
-    addNotification("Password Reset Dispatched", `OTP code dispatched to ${email}`, "info");
+    withLoading(async () => {
+      await forgotPassword({ email });
+      setOtpFlow("forgot");
+      setScreen("otp");
+      addNotification("Reset Code Sent", `OTP dispatched to ${email}.`, "info");
+    });
   };
 
   const handleOtpSubmit = (e) => {
     e.preventDefault();
     const code = otp.join("");
     if (code.length < 4) return;
-    if (screen === "otp" && email && !username) {
-      setScreen("reset"); // reset password sequence
-    } else {
-      // Register validation
-      addNotification("Account Created", "Your profile registration is verified. Welcome to CodeForge!", "success");
-      navigate("/");
-    }
+    withLoading(async () => {
+      await verifyOtp({ email, otp: code, flow: otpFlow });
+      if (otpFlow === "forgot") {
+        setScreen("reset");
+      } else {
+        addNotification("Account Verified!", "Welcome to CodeX86!", "success");
+        navigate(from, { replace: true });
+      }
+    });
   };
 
   const handleResetSubmit = (e) => {
     e.preventDefault();
     if (!newPassword) return;
-    addNotification("Password Reset Successful", "Please log in using your updated password details.", "success");
-    setScreen("login");
+    const code = otp.join("");
+    withLoading(async () => {
+      await resetPassword({ email, otp: code, newPassword });
+      addNotification("Password Reset", "Log in with your new password.", "success");
+      setScreen("login");
+      setOtp(["", "", "", ""]);
+    });
   };
 
   const handleOtpChange = (index, value) => {
     if (isNaN(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value.substring(value.length - 1);
-    setOtp(newOtp);
-
-    // Shift focus forward
-    if (value && index < 3) {
-      document.getElementById(`otp-${index + 1}`)?.focus();
-    }
+    const next = [...otp];
+    next[index] = value.substring(value.length - 1);
+    setOtp(next);
+    if (value && index < 3) document.getElementById(`otp-${index + 1}`)?.focus();
   };
 
+  // ── Animation variants ────────────────────────────────────────────────────
   const formVariants = {
-    initial: { opacity: 0, scale: 0.95, y: 10 },
-    animate: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.3 } },
-    exit: { opacity: 0, scale: 0.95, y: -10, transition: { duration: 0.2 } }
+    initial: { opacity: 0, x: 20 },
+    animate: { opacity: 1, x: 0,  transition: { duration: 0.35, ease: "easeOut" } },
+    exit:    { opacity: 0, x: -20, transition: { duration: 0.2, ease: "easeIn" } },
   };
+
+  // ── Shared error banner ───────────────────────────────────────────────────
+  const ErrorBanner = () =>
+    fieldError ? (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          px: 1.5,
+          py: 1,
+          borderRadius: "8px",
+          backgroundColor: "rgba(211, 47, 47, 0.1)",
+          border: "1px solid rgba(211, 47, 47, 0.3)",
+          fontSize: "12px",
+          color: "#D32F2F",
+        }}
+      >
+        <ShieldAlert size={14} />
+        <span>{fieldError}</span>
+      </Box>
+    ) : null;
 
   return (
-    <div className="bg-bg min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Decorative Gradient Rings */}
-      <div className="absolute w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+    <Grid container sx={{ minHeight: "100vh", backgroundColor: "background.default", color: "text.primary", overflowX: "hidden" }}>
+      {/* ── Left branding side ── */}
+      <Grid
+        item
+        xs={false}
+        lg={5}
+        sx={{
+          display: { xs: "none", lg: "flex" },
+          backgroundColor: "rgba(255, 255, 255, 0.01)",
+          borderRight: "1px solid",
+          borderColor: "divider",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          p: 6,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Subtle grid pattern background overlay */}
+        <Box className="pattern-grid" sx={{ position: "absolute", inset: 0, opacity: 0.15, pointerEvents: "none" }} />
+        <Box sx={{ position: "absolute", width: 450, height: 450, backgroundColor: "rgba(212, 175, 55, 0.04)", borderRadius: "50%", filter: "blur(100px)", top: -96, left: -96, pointerEvents: "none" }} />
 
-      <AnimatePresence mode="wait">
-        {screen === "login" && (
-          <motion.div key="login" variants={formVariants} initial="initial" animate="animate" exit="exit" className="w-full max-w-md">
-            <Card className="p-8 shadow-2xl">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-text-primary">Welcome Back</h2>
-                <p className="text-xs text-text-secondary mt-1.5">Sign in to your CodeForge preparation space</p>
-              </div>
+        {/* Brand logo header */}
+        <Box sx={{ position: "relative", zIndex: 10 }}>
+          <Link to="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+            <Box
+              sx={{
+                width: 36,
+                height: 36,
+                borderRadius: "12px",
+                background: "linear-gradient(45deg, #D4AF37 0%, #FFD700 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "bold",
+                color: "background.default",
+                boxShadow: "0 0 20px rgba(212, 175, 55, 0.25)",
+              }}
+            >
+              CF
+            </Box>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "text.primary" }}>
+              CodeX86
+            </Typography>
+          </Link>
+        </Box>
 
-              <form onSubmit={handleLogin} className="flex flex-col gap-4">
-                <Input
-                  label="Email Address"
-                  id="login-email"
-                  type="email"
-                  placeholder="name@company.com"
-                  icon={Mail}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <div className="flex flex-col">
-                  <div className="flex justify-between items-center mb-1">
-                    <label htmlFor="login-pass" className="text-xs font-semibold text-text-secondary">Password</label>
-                    <button
-                      type="button"
-                      onClick={() => setScreen("forgot")}
-                      className="text-[10px] text-primary hover:underline cursor-pointer"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                  <Input
-                    id="login-pass"
-                    type="password"
-                    placeholder="••••••••"
-                    icon={Lock}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
+        {/* Feature info stack / testimony */}
+        <Box sx={{ position: "relative", zIndex: 10, display: "flex", flexDirection: "column", gap: 4, my: "auto", maxWidth: 380, textAlign: "left" }}>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, tracking: "-0.02em", color: "text.primary", lineHeight: 1.25 }}>
+              Elevate Your Coding Competence.
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary", mt: 1.5, lineHeight: 1.6, fontWeight: "light" }}>
+              Explore dynamic roadmaps, run and compile code inside a Monaco editor, and finish premium timelines built for tech interviews.
+            </Typography>
+          </Box>
 
-                <Button type="submit" className="w-full py-2.5 font-semibold mt-2">
-                  Sign In
-                </Button>
-              </form>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
+              <CheckCircle2 size={16} style={{ color: "#D4AF37", marginTop: "2px", flexShrink: 0 }} />
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block" }}>1,000+ Curated Problems</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "light" }}>Top-tier patterns matching direct corporate interviews.</Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
+              <CheckCircle2 size={16} style={{ color: "#D4AF37", marginTop: "2px", flexShrink: 0 }} />
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block" }}>Audio Mock Sessions</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "light" }}>Mock synthesis timers that track solution attempts.</Typography>
+              </Box>
+            </Box>
+          </Box>
 
-              <div className="text-center text-xs text-text-secondary mt-6">
-                Don't have an account?{" "}
-                <button onClick={() => setScreen("register")} className="text-primary hover:underline font-semibold cursor-pointer">
-                  Sign Up Free
-                </button>
-              </div>
-            </Card>
-          </motion.div>
-        )}
+          {/* Codebox display snippet */}
+          <Box sx={{ width: "100%", backgroundColor: "rgba(0, 0, 0, 0.6)", border: "1px solid", borderColor: "divider", borderRadius: "12px", p: 2, boxShadow: 2, fontFamily: "monospace", fontSize: "10px", lineHeight: 1.6 }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", pb: 1, borderBottom: "1px solid rgba(44, 44, 44, 0.4)", mb: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Terminal size={11} style={{ color: "#D4AF37" }} />
+                <span style={{ color: "#94A3B8" }}>active_profile.json</span>
+              </Box>
+              <span style={{ fontSize: "8px", color: "#10B981", fontWeight: "bold", padding: "2px 6px", backgroundColor: "rgba(16, 185, 129, 0.1)", borderRadius: "4px" }}>ONLINE</span>
+            </Box>
+            <Box sx={{ color: "#CBD5E1" }}>
+              <span style={{ color: "#3B82F6" }}>const</span> userProfile = &#123;<br />
+              &nbsp;&nbsp;username: <span style={{ color: "#22D3EE" }}>"coding_pioneer"</span>,<br />
+              &nbsp;&nbsp;solvedProblems: <span style={{ color: "#FACC15" }}>42</span>,<br />
+              &nbsp;&nbsp;dailyStreak: <span style={{ color: "#FACC15" }}>7</span><br />
+              &#125;;
+            </Box>
+          </Box>
+        </Box>
 
-        {screen === "register" && (
-          <motion.div key="register" variants={formVariants} initial="initial" animate="animate" exit="exit" className="w-full max-w-md">
-            <Card className="p-8 shadow-2xl">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-text-primary">Create Account</h2>
-                <p className="text-xs text-text-secondary mt-1.5">Start coding with a global peer network</p>
-              </div>
+        {/* Footer legal text */}
+        <Typography variant="caption" sx={{ position: "relative", zIndex: 10, color: "rgba(207, 207, 207, 0.5)" }}>
+          © 2026 CodeX86 Inc. All rights reserved.
+        </Typography>
+      </Grid>
 
-              <form onSubmit={handleRegister} className="flex flex-col gap-4">
-                <Input
-                  label="Username"
-                  id="reg-user"
-                  type="text"
-                  placeholder="coding_pioneer"
-                  icon={User}
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-                <Input
-                  label="Email Address"
-                  id="reg-email"
-                  type="email"
-                  placeholder="name@domain.com"
-                  icon={Mail}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <Input
-                  label="Password"
-                  id="reg-pass"
-                  type="password"
-                  placeholder="••••••••"
-                  icon={Lock}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+      {/* ── Right interactive form side ── */}
+      <Grid
+        item
+        xs={12}
+        lg={7}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          p: { xs: 4, lg: 8 },
+          backgroundColor: "background.default",
+          position: "relative",
+          overflowY: "auto",
+          minHeight: "100vh",
+        }}
+      >
+        {/* Top bar back button (visible on mobile/desktop without sidebar) */}
+        <Box sx={{ position: "absolute", top: 32, left: 32, zIndex: 10, display: { lg: "none" } }}>
+          <Link to="/" style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#CFCFCF", textDecoration: "none" }}>
+            <ArrowLeft size={14} /> Back
+          </Link>
+        </Box>
 
-                <Button type="submit" className="w-full py-2.5 font-semibold mt-2">
-                  Create Account
-                </Button>
-              </form>
+        {/* Card containing the active screen */}
+        <Box sx={{ width: "100%", maxWidth: "384px" }}>
+          <AnimatePresence mode="wait">
+            {/* ── Login screen ── */}
+            {screen === "login" && (
+              <Box component={motion.div} key="login" variants={formVariants} initial="initial" animate="animate" exit="exit" sx={{ display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
+                <Box>
+                  <Typography variant="h5" sx={{ fontWeight: "bold", color: "text.primary" }}>Sign In</Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block", fontWeight: "light" }}>
+                    Access your coding sandbox and problem dashboard.
+                  </Typography>
+                </Box>
 
-              <div className="text-center text-xs text-text-secondary mt-6">
-                Already registered?{" "}
-                <button onClick={() => setScreen("login")} className="text-primary hover:underline font-semibold cursor-pointer">
-                  Sign In
-                </button>
-              </div>
-            </Card>
-          </motion.div>
-        )}
+                <Box component="form" onSubmit={handleLogin} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <ErrorBanner />
+                  <Input label="Email Address" id="login-email" type="email" placeholder="name@company.com"
+                    icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} required />
 
-        {screen === "forgot" && (
-          <motion.div key="forgot" variants={formVariants} initial="initial" animate="animate" exit="exit" className="w-full max-w-md">
-            <Card className="p-8 shadow-2xl">
-              <button
-                onClick={() => setScreen("login")}
-                className="inline-flex items-center gap-1 text-[10px] text-text-secondary hover:text-text-primary mb-4 cursor-pointer"
-              >
-                <ArrowLeft size={10} /> Back to Sign In
-              </button>
+                  <Box sx={{ display: "flex", flexDirection: "column" }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.75 }}>
+                      <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>Password</Typography>
+                      <ButtonBase onClick={() => setScreen("forgot")}
+                        sx={{ fontSize: "10px", color: "primary.main", "&:hover": { textDecoration: "underline" } }}>
+                        Forgot password?
+                      </ButtonBase>
+                    </Box>
+                    <Input id="login-pass" type="password" placeholder="••••••••"
+                      icon={Lock} value={password} onChange={(e) => setPassword(e.target.value)} required />
+                  </Box>
 
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-text-primary">Recover Password</h2>
-                <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
-                  Enter your email address. We'll send you a 4-digit code to reset your account details.
-                </p>
-              </div>
+                  <Button type="submit" style={{ width: "100%", fontWeight: "bold", marginTop: "16px" }} disabled={isSubmitting}>
+                    {isSubmitting ? "Signing in…" : "Sign In"}
+                  </Button>
+                </Box>
 
-              <form onSubmit={handleForgot} className="flex flex-col gap-4">
-                <Input
-                  label="Email Address"
-                  id="forgot-email"
-                  type="email"
-                  placeholder="name@domain.com"
-                  icon={Mail}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <Button type="submit" className="w-full py-2.5 font-semibold mt-2">
-                  Request Reset Code
-                </Button>
-              </form>
-            </Card>
-          </motion.div>
-        )}
+                <Typography variant="caption" sx={{ display: "block", textAlign: "center", color: "text.secondary", mt: 1 }}>
+                  Don't have an account?{" "}
+                  <ButtonBase onClick={() => { setFieldError(""); setScreen("register"); }}
+                    sx={{ color: "primary.main", fontWeight: "bold", "&:hover": { textDecoration: "underline" } }}>
+                    Sign Up Free
+                  </ButtonBase>
+                </Typography>
+              </Box>
+            )}
 
-        {screen === "otp" && (
-          <motion.div key="otp" variants={formVariants} initial="initial" animate="animate" exit="exit" className="w-full max-w-md">
-            <Card className="p-8 shadow-2xl">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-text-primary">Verify Identity</h2>
-                <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
-                  A 4-digit verification code was sent to <span className="text-text-primary font-medium">{email}</span>. Enter code below:
-                </p>
-              </div>
+            {/* ── Register screen ── */}
+            {screen === "register" && (
+              <Box component={motion.div} key="register" variants={formVariants} initial="initial" animate="animate" exit="exit" sx={{ display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
+                <Box>
+                  <Typography variant="h5" sx={{ fontWeight: "bold", color: "text.primary" }}>Create Account</Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block", fontWeight: "light" }}>
+                    Join technical sprints and access active roadmaps.
+                  </Typography>
+                </Box>
 
-              <form onSubmit={handleOtpSubmit} className="flex flex-col gap-6 items-center">
-                <div className="flex gap-3 justify-center w-full">
-                  {otp.map((digit, idx) => (
-                    <input
-                      key={idx}
-                      id={`otp-${idx}`}
-                      type="text"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOtpChange(idx, e.target.value)}
-                      className="w-12 h-12 text-center text-lg font-bold bg-surface border border-border rounded-lg text-text-primary transition-all focus:border-primary focus:ring-1 focus:ring-primary"
-                      required
-                    />
-                  ))}
-                </div>
+                <Box component="form" onSubmit={handleRegister} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <ErrorBanner />
+                  <Input label="Username" id="reg-user" type="text" placeholder="coding_pioneer"
+                    icon={User} value={username} onChange={(e) => setUsername(e.target.value)} required />
+                  <Input label="Email Address" id="reg-email" type="email" placeholder="name@domain.com"
+                    icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <Input label="Password" id="reg-pass" type="password" placeholder="••••••••"
+                    icon={Lock} value={password} onChange={(e) => setPassword(e.target.value)} required />
 
-                <Button type="submit" className="w-full py-2.5 font-semibold">
-                  Verify & Proceed
-                </Button>
-              </form>
+                  <Button type="submit" style={{ width: "100%", fontWeight: "bold", marginTop: "16px" }} disabled={isSubmitting}>
+                    {isSubmitting ? "Creating account…" : "Create Account"}
+                  </Button>
+                </Box>
 
-              <div className="text-center text-xs text-text-secondary mt-6">
-                Didn't receive a code?{" "}
-                <button
-                  onClick={() => addNotification("Verification Code Resent", "A new OTP code was sent.", "info")}
-                  className="text-primary hover:underline cursor-pointer font-medium"
-                >
-                  Resend Code
-                </button>
-              </div>
-            </Card>
-          </motion.div>
-        )}
+                <Typography variant="caption" sx={{ display: "block", textAlign: "center", color: "text.secondary", mt: 1 }}>
+                  Already registered?{" "}
+                  <ButtonBase onClick={() => { setFieldError(""); setScreen("login"); }}
+                    sx={{ color: "primary.main", fontWeight: "bold", "&:hover": { textDecoration: "underline" } }}>
+                    Sign In
+                  </ButtonBase>
+                </Typography>
+              </Box>
+            )}
 
-        {screen === "reset" && (
-          <motion.div key="reset" variants={formVariants} initial="initial" animate="animate" exit="exit" className="w-full max-w-md">
-            <Card className="p-8 shadow-2xl">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-text-primary">Reset Password</h2>
-                <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
-                  Code verified. Choose a secure new password for your account.
-                </p>
-              </div>
+            {/* ── Forgot password screen ── */}
+            {screen === "forgot" && (
+              <Box component={motion.div} key="forgot" variants={formVariants} initial="initial" animate="animate" exit="exit" sx={{ display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
+                <Box>
+                  <ButtonBase onClick={() => { setFieldError(""); setScreen("login"); }}
+                    sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, fontSize: "10px", color: "text.secondary", mb: 1, "&:hover": { color: "text.primary" } }}>
+                    <ArrowLeft size={10} /> Back to Sign In
+                  </ButtonBase>
+                  <Typography variant="h5" sx={{ fontWeight: "bold", color: "text.primary" }}>Recover Password</Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block", fontWeight: "light", lineHeight: 1.5 }}>
+                    Enter your email. We'll send a 4-digit code to reset your account.
+                  </Typography>
+                </Box>
 
-              <form onSubmit={handleResetSubmit} className="flex flex-col gap-4">
-                <Input
-                  label="New Password"
-                  id="reset-pass"
-                  type="password"
-                  placeholder="••••••••"
-                  icon={KeyRound}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                />
-                <Button type="submit" className="w-full py-2.5 font-semibold mt-2">
-                  Update Password
-                </Button>
-              </form>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+                <Box component="form" onSubmit={handleForgot} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <ErrorBanner />
+                  <Input label="Email Address" id="forgot-email" type="email" placeholder="name@domain.com"
+                    icon={Mail} value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <Button type="submit" style={{ width: "100%", fontWeight: "bold", marginTop: "16px" }} disabled={isSubmitting}>
+                    {isSubmitting ? "Sending…" : "Request Reset Code"}
+                  </Button>
+                </Box>
+              </Box>
+            )}
+
+            {/* ── OTP verification screen ── */}
+            {screen === "otp" && (
+              <Box component={motion.div} key="otp" variants={formVariants} initial="initial" animate="animate" exit="exit" sx={{ display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
+                <Box>
+                  <Typography variant="h5" sx={{ fontWeight: "bold", color: "text.primary" }}>Verify Identity</Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block", fontWeight: "light", lineHeight: 1.5 }}>
+                    A 4-digit code was sent to <span style={{ color: "#FFFFFF", fontWeight: "500" }}>{email}</span>.
+                    {" "}{import.meta.env.VITE_API_URL ? "" : <span style={{ color: "#FFD700", fontWeight: "600" }}>(Mock: use 1234)</span>}
+                  </Typography>
+                </Box>
+
+                <Box component="form" onSubmit={handleOtpSubmit} sx={{ display: "flex", flexDirection: "column", gap: 3, alignItems: "center" }}>
+                  <ErrorBanner />
+                  <Box sx={{ display: "flex", gap: 1.5, justifyContent: "center", width: "100%" }}>
+                    {otp.map((digit, idx) => (
+                      <InputBase
+                        key={idx}
+                        id={`otp-${idx}`}
+                        type="text"
+                        inputProps={{ maxLength: 1, style: { textAlign: "center", fontWeight: "bold", fontSize: "18px" } }}
+                        value={digit}
+                        onChange={(e) => handleOtpChange(idx, e.target.value)}
+                        required
+                        sx={{
+                          width: 48,
+                          height: 48,
+                          backgroundColor: "background.paper",
+                          border: "1px solid",
+                          borderColor: "divider",
+                          borderRadius: "8px",
+                          color: "text.primary",
+                          transition: "border-color 0.2s",
+                          "&:focus-within": {
+                            borderColor: "primary.main",
+                            boxShadow: "0 0 0 1px #D4AF37",
+                          },
+                        }}
+                      />
+                    ))}
+                  </Box>
+
+                  <Button type="submit" style={{ width: "100%", fontWeight: "bold" }} disabled={isSubmitting}>
+                    {isSubmitting ? "Verifying…" : "Verify & Proceed"}
+                  </Button>
+                </Box>
+
+                <Typography variant="caption" sx={{ display: "block", textAlign: "center", color: "text.secondary" }}>
+                  Didn't receive a code?{" "}
+                  <ButtonBase onClick={() => addNotification("Code Resent", "A new OTP was sent.", "info")}
+                    sx={{ color: "primary.main", fontWeight: "medium", "&:hover": { textDecoration: "underline" } }}>
+                    Resend Code
+                  </ButtonBase>
+                </Typography>
+              </Box>
+            )}
+
+            {/* ── Reset password screen ── */}
+            {screen === "reset" && (
+              <Box component={motion.div} key="reset" variants={formVariants} initial="initial" animate="animate" exit="exit" sx={{ display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
+                <Box>
+                  <Typography variant="h5" sx={{ fontWeight: "bold", color: "text.primary" }}>Reset Password</Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block", fontWeight: "light", lineHeight: 1.5 }}>
+                    Code verified. Choose a secure new password.
+                  </Typography>
+                </Box>
+
+                <Box component="form" onSubmit={handleResetSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <ErrorBanner />
+                  <Input label="New Password" id="reset-pass" type="password" placeholder="••••••••"
+                    icon={KeyRound} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
+                  <Button type="submit" style={{ width: "100%", fontWeight: "bold", marginTop: "16px" }} disabled={isSubmitting}>
+                    {isSubmitting ? "Updating…" : "Update Password"}
+                  </Button>
+                </Box>
+              </Box>
+            )}
+          </AnimatePresence>
+        </Box>
+      </Grid>
+    </Grid>
   );
 };
+
 export default Auth;

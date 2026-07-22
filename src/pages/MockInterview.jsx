@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { Play, Volume2, Star, Clock, Trophy, CheckCircle, HelpCircle, Activity } from "lucide-react";
+import { Play, Volume2, Clock, Trophy, CheckCircle } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { Card, CardHeader, CardBody } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 
+// MUI Imports
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import ButtonBase from "@mui/material/ButtonBase";
+import Divider from "@mui/material/Divider";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+
 export const MockInterview = () => {
   const { addNotification, triggerConfettiEffect } = useApp();
 
-  // Mock Session States: setup | active | feedback
   const [sessionState, setSessionState] = useState("setup");
   const [difficulty, setDifficulty] = useState("Medium");
   const [topic, setTopic] = useState("Arrays");
-  
-  // Timer state
-  const [timeLeft, setTimeLeft] = useState(2700); // 45 minutes
+  const [timeLeft, setTimeLeft] = useState(2700);
   const [timerActive, setTimerActive] = useState(false);
 
   useEffect(() => {
     let interval = null;
     if (timerActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
+      interval = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     } else if (timeLeft === 0) {
       setTimerActive(false);
       handleFinishSession();
@@ -31,15 +37,12 @@ export const MockInterview = () => {
   }, [timerActive, timeLeft]);
 
   const handleStartSession = () => {
-    setTimeLeft(2700);
-    setSessionState("active");
-    setTimerActive(true);
+    setTimeLeft(2700); setSessionState("active"); setTimerActive(true);
     addNotification("Mock Session Started", `Good luck! You have 45 minutes to solve this ${difficulty} level ${topic} challenge.`, "info");
   };
 
   const handleFinishSession = () => {
-    setTimerActive(false);
-    setSessionState("feedback");
+    setTimerActive(false); setSessionState("feedback");
     triggerConfettiEffect();
     addNotification("Session Completed", "Mock interview assessment compiled successfully.", "success");
   };
@@ -54,169 +57,188 @@ export const MockInterview = () => {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const difficultyColor = { Easy: "#22C55E", Medium: "#F59E0B", Hard: "#EF4444" };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-24 pb-12 flex flex-col gap-6 text-left">
-      <div>
-        <h2 className="text-xl sm:text-2xl font-extrabold text-text-primary">Mock Interview Simulator</h2>
-        <p className="text-xs text-text-secondary mt-1">Practice coding challenges under time constraints with interviewer prompts.</p>
-      </div>
+    <Box sx={{ maxWidth: "1280px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
+      <Box>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>Mock Interview Simulator</Typography>
+        <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
+          Practice coding challenges under time constraints with interviewer prompts.
+        </Typography>
+      </Box>
 
+      {/* Setup Phase */}
       {sessionState === "setup" && (
-        <Card className="p-8 max-w-2xl mx-auto">
-          <div className="text-center mb-6">
-            <Trophy size={36} className="text-primary mx-auto mb-3" />
-            <h3 className="text-base font-extrabold text-text-primary">Configure Mock Session</h3>
-            <p className="text-xs text-text-secondary mt-1">Select focus parameters to match upcoming loops.</p>
-          </div>
+        <Box sx={{ maxWidth: "600px", mx: "auto", width: "100%" }}>
+          <Card style={{ padding: "32px" }}>
+            <Box sx={{ textAlign: "center", mb: 3 }}>
+              <Trophy size={36} style={{ color: "#D4AF37", margin: "0 auto 12px" }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "text.primary" }}>Configure Mock Session</Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>Select focus parameters to match upcoming loops.</Typography>
+            </Box>
 
-          <div className="flex flex-col gap-5 text-left">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-text-secondary">Difficulty Level</label>
-              <div className="grid grid-cols-3 gap-2">
-                {["Easy", "Medium", "Hard"].map((diff) => (
-                  <button
-                    key={diff}
-                    type="button"
-                    onClick={() => setDifficulty(diff)}
-                    className={`py-2 rounded-lg border text-xs font-semibold cursor-pointer text-center transition-all ${
-                      difficulty === diff
-                        ? "bg-primary/10 border-primary text-primary"
-                        : "bg-card border-border text-text-secondary hover:text-text-primary"
-                    }`}
-                  >
-                    {diff}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5, textAlign: "left" }}>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", display: "block", mb: 1 }}>Difficulty Level</Typography>
+                <Grid container spacing={1}>
+                  {["Easy", "Medium", "Hard"].map((diff) => (
+                    <Grid item xs={4} key={diff}>
+                      <ButtonBase onClick={() => setDifficulty(diff)}
+                        sx={{
+                          width: "100%", py: 1, borderRadius: "8px", border: "1px solid", fontSize: "12px", fontWeight: "bold",
+                          borderColor: difficulty === diff ? "primary.main" : "divider",
+                          color: difficulty === diff ? "primary.main" : "text.secondary",
+                          backgroundColor: difficulty === diff ? "rgba(212,175,55,0.1)" : "background.card",
+                          transition: "all 0.2s",
+                          "&:hover": { color: difficulty !== diff ? "text.primary" : "primary.main" },
+                        }}>
+                        {diff}
+                      </ButtonBase>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-text-secondary">Topic Category</label>
-              <select
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                className="bg-surface border border-border text-text-primary text-xs rounded-lg px-3 py-2 cursor-pointer w-full focus:outline-none"
-              >
-                <option value="Arrays">Arrays & Hashing</option>
-                <option value="DP">Dynamic Programming</option>
-                <option value="Graphs">Graph Networks</option>
-                <option value="Trees">Binary Trees</option>
-              </select>
-            </div>
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", display: "block", mb: 1 }}>Topic Category</Typography>
+                <FormControl size="small" fullWidth>
+                  <Select value={topic} onChange={(e) => setTopic(e.target.value)}
+                    sx={{ fontSize: "12px", color: "text.primary", backgroundColor: "background.paper", "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" }, "& .MuiSelect-icon": { color: "text.secondary" } }}>
+                    <MenuItem value="Arrays" sx={{ fontSize: "12px" }}>Arrays & Hashing</MenuItem>
+                    <MenuItem value="DP" sx={{ fontSize: "12px" }}>Dynamic Programming</MenuItem>
+                    <MenuItem value="Graphs" sx={{ fontSize: "12px" }}>Graph Networks</MenuItem>
+                    <MenuItem value="Trees" sx={{ fontSize: "12px" }}>Binary Trees</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
 
-            <Button onClick={handleStartSession} className="w-full py-2.5 mt-4 font-semibold">
-              Start Mock Interview
-            </Button>
-          </div>
-        </Card>
+              <Button onClick={handleStartSession} style={{ width: "100%", fontWeight: "bold", marginTop: "16px" }}>
+                Start Mock Interview
+              </Button>
+            </Box>
+          </Card>
+        </Box>
       )}
 
+      {/* Active Session */}
       {sessionState === "active" && (
-        <div className="grid lg:grid-cols-3 gap-6">
+        <Grid container spacing={3}>
           {/* Question Details pane */}
-          <Card className="lg:col-span-2 p-6 flex flex-col justify-between min-h-[400px]">
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <Badge variant="primary" size="sm">Mock: {topic}</Badge>
-                <div className="text-xs font-bold text-danger font-mono flex items-center gap-1">
-                  <Clock size={14} /> {formatTime(timeLeft)}
-                </div>
-              </div>
+          <Grid item xs={12} lg={8}>
+            <Card style={{ padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "400px" }}>
+              <Box>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                  <Badge variant="primary" size="sm">Mock: {topic}</Badge>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, fontWeight: "bold", color: "#D32F2F", fontFamily: "monospace", fontSize: "12px" }}>
+                    <Clock size={14} /> {formatTime(timeLeft)}
+                  </Box>
+                </Box>
 
-              <h3 className="text-base font-bold text-text-primary">Design a dynamic network data caching system</h3>
-              <p className="text-xs text-text-secondary mt-3 leading-relaxed font-light">
-                Implement a data structure supporting <code>insert(key, val)</code>, <code>get(key)</code>, and <code>delete(key)</code> operations in average <code>O(1)</code> time. The cache must automatically evict least recently read nodes once limits are reached.
-              </p>
-            </div>
+                <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "text.primary" }}>Design a dynamic network data caching system</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", mt: 1.5, display: "block", lineHeight: 1.6, fontWeight: "light" }}>
+                  Implement a data structure supporting <code>insert(key, val)</code>, <code>get(key)</code>, and <code>delete(key)</code> operations in average <code>O(1)</code> time. The cache must automatically evict least recently read nodes once limits are reached.
+                </Typography>
+              </Box>
 
-            <div className="border-t border-border/40 pt-4 mt-6 flex justify-between items-center">
-              <Button variant="outline" size="sm" onClick={playAudioPrompt} className="gap-1.5 text-xs font-semibold">
-                <Volume2 size={14} /> Audio Prompt
-              </Button>
-              <Button variant="danger" size="sm" onClick={handleFinishSession} className="font-semibold text-xs">
-                Finish Interview
-              </Button>
-            </div>
-          </Card>
+              <Box sx={{ borderTop: "1px solid rgba(44,44,44,0.4)", pt: 2, mt: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Button variant="outline" size="sm" onClick={playAudioPrompt} style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: "bold", fontSize: "12px" }}>
+                  <Volume2 size={14} /> Audio Prompt
+                </Button>
+                <Button variant="danger" size="sm" onClick={handleFinishSession} style={{ fontWeight: "bold", fontSize: "12px" }}>
+                  Finish Interview
+                </Button>
+              </Box>
+            </Card>
+          </Grid>
 
-          {/* Interview Checklist and Tips */}
-          <Card className="p-5">
-            <CardHeader className="mb-4 pb-2">
-              <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">Interviewer Notes Checklist</h3>
-            </CardHeader>
-            <ul className="flex flex-col gap-3.5 text-xs text-text-secondary font-light">
-              <li className="flex items-start gap-2.5">
-                <input type="checkbox" className="mt-0.5 rounded border-border text-primary" />
-                <span>Explain brute-force complexity before coding.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <input type="checkbox" className="mt-0.5 rounded border-border text-primary" />
-                <span>Verify pointer boundaries and empty array inputs.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <input type="checkbox" className="mt-0.5 rounded border-border text-primary" />
-                <span>Dry run code with sample input variables out loud.</span>
-              </li>
-            </ul>
-          </Card>
-        </div>
+          {/* Interview Checklist */}
+          <Grid item xs={12} lg={4}>
+            <Card style={{ padding: "20px" }}>
+              <CardHeader style={{ marginBottom: "16px", paddingBottom: "8px" }}>
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  Interviewer Notes Checklist
+                </Typography>
+              </CardHeader>
+              <Box component="ul" sx={{ display: "flex", flexDirection: "column", gap: 1.75, p: 0, m: 0, listStyle: "none" }}>
+                {[
+                  "Explain brute-force complexity before coding.",
+                  "Verify pointer boundaries and empty array inputs.",
+                  "Dry run code with sample input variables out loud.",
+                ].map((item, i) => (
+                  <Box component="li" key={i} sx={{ display: "flex", alignItems: "flex-start", gap: 1.25, fontSize: "12px", color: "text.secondary", fontWeight: "light" }}>
+                    <input type="checkbox" style={{ marginTop: "2px", accentColor: "#D4AF37" }} />
+                    <span>{item}</span>
+                  </Box>
+                ))}
+              </Box>
+            </Card>
+          </Grid>
+        </Grid>
       )}
 
+      {/* Feedback Phase */}
       {sessionState === "feedback" && (
-        <div className="grid md:grid-cols-3 gap-6">
+        <Grid container spacing={3}>
           {/* Core rating stats */}
-          <Card className="p-6 text-center flex flex-col justify-between items-center">
-            <div>
-              <Trophy size={36} className="text-yellow-500 mb-4 animate-bounce" />
-              <h3 className="text-base font-extrabold text-text-primary">Performance Assessment</h3>
-              <p className="text-[10px] text-text-secondary mt-1 uppercase tracking-widest">Calculated Score</p>
-              
-              <div className="text-5xl font-extrabold text-primary font-mono mt-6">84%</div>
-            </div>
-
-            <Button variant="outline" size="sm" onClick={() => setSessionState("setup")} className="w-full mt-8 font-semibold">
-              Return to Setup
-            </Button>
-          </Card>
+          <Grid item xs={12} md={4}>
+            <Card style={{ padding: "24px", textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center" }}>
+              <Box>
+                <Trophy size={36} style={{ color: "#F59E0B" }} className="animate-bounce" />
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "text.primary", mt: 2 }}>Performance Assessment</Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.1em", display: "block" }}>Calculated Score</Typography>
+                <Typography variant="h2" sx={{ fontWeight: 800, color: "primary.main", fontFamily: "monospace", mt: 3 }}>84%</Typography>
+              </Box>
+              <Button variant="outline" size="sm" onClick={() => setSessionState("setup")} style={{ width: "100%", marginTop: "32px", fontWeight: "bold" }}>
+                Return to Setup
+              </Button>
+            </Card>
+          </Grid>
 
           {/* Feedback logs details */}
-          <Card className="md:col-span-2 p-6 text-left">
-            <CardHeader className="mb-4 pb-2">
-              <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">Interviewer Evaluation Report</h3>
-            </CardHeader>
-            
-            <div className="flex flex-col gap-4 text-xs">
-              <div className="flex justify-between items-center">
-                <span className="font-semibold text-text-primary">Code Correctness & Complexity</span>
-                <span className="font-mono font-bold text-success">90%</span>
-              </div>
-              <div className="flex justify-between items-center border-t border-border/30 pt-3">
-                <span className="font-semibold text-text-primary">Communication & Out-Loud Logic</span>
-                <span className="font-mono font-bold text-success">85%</span>
-              </div>
-              <div className="flex justify-between items-center border-t border-border/30 pt-3">
-                <span className="font-semibold text-text-primary">Time efficiency & Edge Handling</span>
-                <span className="font-mono font-bold text-warning">75%</span>
-              </div>
+          <Grid item xs={12} md={8}>
+            <Card style={{ padding: "24px", textAlign: "left" }}>
+              <CardHeader style={{ marginBottom: "16px", paddingBottom: "8px" }}>
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  Interviewer Evaluation Report
+                </Typography>
+              </CardHeader>
 
-              <div className="border-t border-border/40 my-3" />
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                {[
+                  { label: "Code Correctness & Complexity", score: "90%", color: "#22C55E" },
+                  { label: "Communication & Out-Loud Logic", score: "85%", color: "#22C55E" },
+                  { label: "Time efficiency & Edge Handling", score: "75%", color: "#F59E0B" },
+                ].map(({ label, score, color }, i) => (
+                  <Box key={label}>
+                    {i > 0 && <Divider sx={{ borderColor: "rgba(44,44,44,0.3)", my: 1.5 }} />}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px" }}>
+                      <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary" }}>{label}</Typography>
+                      <Typography variant="caption" sx={{ fontFamily: "monospace", fontWeight: "bold", color }}>{score}</Typography>
+                    </Box>
+                  </Box>
+                ))}
 
-              <div className="flex flex-col gap-2">
-                <h4 className="font-bold text-text-primary">Candidate Feedback Checklist:</h4>
-                <div className="flex items-start gap-2.5 text-text-secondary font-light">
-                  <CheckCircle size={14} className="text-success mt-0.5 shrink-0" />
-                  <span>Excellent logic design. Handled clean LRU cache updates correctly.</span>
-                </div>
-                <div className="flex items-start gap-2.5 text-text-secondary font-light">
-                  <CheckCircle size={14} className="text-success mt-0.5 shrink-0" />
-                  <span>Great communication out loud. Walked through list nodes before editing.</span>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
+                <Divider sx={{ borderColor: "rgba(44,44,44,0.4)", my: 2 }} />
+
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block" }}>Candidate Feedback Checklist:</Typography>
+                  {[
+                    "Excellent logic design. Handled clean LRU cache updates correctly.",
+                    "Great communication out loud. Walked through list nodes before editing.",
+                  ].map((item, i) => (
+                    <Box key={i} sx={{ display: "flex", alignItems: "flex-start", gap: 1.25, fontSize: "12px", color: "text.secondary", fontWeight: "light" }}>
+                      <CheckCircle size={14} style={{ color: "#22C55E", marginTop: "2px", flexShrink: 0 }} />
+                      <span>{item}</span>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </Card>
+          </Grid>
+        </Grid>
       )}
-    </div>
+    </Box>
   );
 };
 export default MockInterview;

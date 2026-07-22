@@ -1,11 +1,17 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Award, BookOpen, Target, CheckCircle2, ChevronRight, Play, BookCheck, ShieldAlert } from "lucide-react";
+import { Award, BookOpen, Target, CheckCircle2, ChevronRight, Play, BookCheck } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { Card } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { ProgressBar } from "../components/ui/ProgressBar";
 import { Button } from "../components/ui/Button";
+
+// MUI Imports
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
 
 export const StudyPlans = () => {
   const { studyPlans, problems, userProfile } = useApp();
@@ -13,168 +19,178 @@ export const StudyPlans = () => {
 
   const activePlan = studyPlans.find(plan => plan.id === selectedPlanId) || studyPlans[0];
 
-  // Helper to compile progress metrics for each plan
   const getPlanProgress = (plan) => {
-    let solvedCount = 0;
-    let totalCount = 0;
-    
+    let solvedCount = 0, totalCount = 0;
     plan.modules.forEach(mod => {
       mod.problems.forEach(probId => {
         totalCount++;
-        if (userProfile.solvedProblemsList.includes(probId)) {
-          solvedCount++;
-        }
+        if (userProfile.solvedProblemsList.includes(probId)) solvedCount++;
       });
     });
-    
     return { solvedCount, totalCount };
   };
 
+  const difficultyColor = { Easy: "#22C55E", Medium: "#F59E0B", Hard: "#EF4444" };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-24 pb-12 flex flex-col gap-6 text-left">
-      <div>
-        <h2 className="text-xl sm:text-2xl font-extrabold text-text-primary">Curated Study Plans</h2>
-        <p className="text-xs text-text-secondary mt-1">Accelerate your training with structured node roadmap tracks.</p>
-      </div>
+    <Box sx={{ maxWidth: "1280px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
+      <Box>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>Curated Study Plans</Typography>
+        <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
+          Accelerate your training with structured node roadmap tracks.
+        </Typography>
+      </Box>
 
       {/* Plans Picker grid */}
-      <div className="grid md:grid-cols-3 gap-4">
+      <Grid container spacing={2}>
         {studyPlans.map((plan) => {
           const { solvedCount, totalCount } = getPlanProgress(plan);
           const isSelected = plan.id === selectedPlanId;
-          
           return (
-            <Card
-              key={plan.id}
-              onClick={() => setSelectedPlanId(plan.id)}
-              className={`p-5 cursor-pointer relative border transition-all ${
-                isSelected
-                  ? "bg-surface border-primary shadow-[0_0_20px_rgba(99,102,241,0.15)]"
-                  : "bg-card border-border/80"
-              }`}
-            >
-              <div className="flex flex-col gap-3">
-                <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Roadmap Track</span>
-                <h3 className="text-sm font-bold text-text-primary">{plan.title}</h3>
-                <p className="text-xs text-text-secondary line-clamp-2 leading-relaxed font-light">{plan.description}</p>
-                
-                <div className="mt-4">
-                  <div className="flex justify-between text-[10px] text-text-secondary font-semibold mb-1">
-                    <span>Progress</span>
-                    <span>{solvedCount} / {totalCount} Solved</span>
-                  </div>
-                  <ProgressBar value={solvedCount} max={totalCount} size="sm" />
-                </div>
-              </div>
-            </Card>
+            <Grid item xs={12} md={4} key={plan.id}>
+              <Card
+                onClick={() => setSelectedPlanId(plan.id)}
+                style={{
+                  padding: "20px",
+                  cursor: "pointer",
+                  height: "100%",
+                  border: `1px solid ${isSelected ? "#D4AF37" : "rgba(44,44,44,0.8)"}`,
+                  backgroundColor: isSelected ? "rgba(17,17,17,0.9)" : "rgba(26,26,26,0.4)",
+                  boxShadow: isSelected ? "0 0 20px rgba(212,175,55,0.15)" : "none",
+                  transition: "all 0.2s",
+                }}
+              >
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "10px" }}>
+                    Roadmap Track
+                  </Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary" }}>{plan.title}</Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "light", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {plan.description}
+                  </Typography>
+                  <Box sx={{ mt: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "text.secondary", fontWeight: "bold", mb: 0.5 }}>
+                      <span>Progress</span>
+                      <span>{solvedCount} / {totalCount} Solved</span>
+                    </Box>
+                    <ProgressBar value={solvedCount} max={totalCount} size="sm" />
+                  </Box>
+                </Box>
+              </Card>
+            </Grid>
           );
         })}
-      </div>
+      </Grid>
 
       {/* Roadmap Modules Timeline details */}
-      <div className="grid lg:grid-cols-3 gap-6 mt-4">
+      <Grid container spacing={3} sx={{ mt: 1 }}>
         {/* Modules Progression Tree */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
-          <Card className="p-6">
-            <div className="flex justify-between items-center pb-3 border-b border-border/40 mb-6">
-              <h3 className="text-sm font-bold text-text-primary">{activePlan.title} Roadmap Modules</h3>
-              <Link to={`/certificates`}>
-                <Button size="sm" variant="outline" className="text-xs gap-1.5 font-semibold">
-                  <Award size={14} className="text-accent" /> View Certificate
+        <Grid item xs={12} lg={8}>
+          <Card style={{ padding: "24px" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", pb: 1.5, borderBottom: "1px solid rgba(44,44,44,0.4)", mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary" }}>
+                {activePlan?.title} Roadmap Modules
+              </Typography>
+              <Link to="/certificates" style={{ textDecoration: "none" }}>
+                <Button size="sm" variant="outline" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: "bold" }}>
+                  <Award size={14} style={{ color: "#FFD700" }} /> View Certificate
                 </Button>
               </Link>
-            </div>
+            </Box>
 
-            {/* Timelines list */}
-            <div className="flex flex-col gap-8 relative pl-4 border-l-2 border-border/60">
-              {activePlan.modules.map((mod, mIdx) => (
-                <div key={mIdx} className="relative flex flex-col gap-4 text-left">
+            {/* Timeline list */}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 4, position: "relative", pl: 2, borderLeft: "2px solid rgba(44,44,44,0.6)" }}>
+              {activePlan?.modules.map((mod, mIdx) => (
+                <Box key={mIdx} sx={{ position: "relative", display: "flex", flexDirection: "column", gap: 2, textAlign: "left" }}>
                   {/* Timeline point indicator */}
-                  <div className="absolute -left-[25px] top-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center border-4 border-bg" />
-                  
-                  <div>
-                    <h4 className="text-xs font-bold text-text-primary uppercase tracking-widest">{mod.name}</h4>
-                    <span className="text-[10px] text-text-secondary font-medium">Module {mIdx + 1}</span>
-                  </div>
+                  <Box sx={{
+                    position: "absolute", left: -25, top: 6, width: 16, height: 16, borderRadius: "50%",
+                    backgroundColor: "primary.main", display: "flex", alignItems: "center", justifyContent: "center",
+                    border: "4px solid", borderColor: "background.default",
+                  }} />
+                  <Box>
+                    <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em", display: "block" }}>
+                      {mod.name}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "medium" }}>Module {mIdx + 1}</Typography>
+                  </Box>
 
-                  <div className="flex flex-col gap-2">
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                     {mod.problems.map((probId) => {
                       const p = problems.find(prob => prob.id === probId);
                       if (!p) return null;
-                      
                       const isSolved = userProfile.solvedProblemsList.includes(probId);
-                      
                       return (
-                        <div
-                          key={probId}
-                          className="flex items-center justify-between p-3.5 bg-card/45 border border-border/60 rounded-xl hover:border-primary/50 transition-all hover:bg-card group"
-                        >
-                          <div className="flex items-center gap-3">
-                            {isSolved ? (
-                              <CheckCircle2 size={16} className="text-success shrink-0" />
-                            ) : (
-                              <Play size={14} className="text-text-secondary/50 shrink-0" />
-                            )}
-                            <div>
-                              <div className="text-xs font-bold text-text-primary group-hover:text-primary transition-colors">{p.title}</div>
-                              <div className="text-[10px] text-text-secondary mt-1 flex items-center gap-1.5">
-                                <span className={
-                                  p.difficulty === "Easy" ? "text-success font-semibold" : p.difficulty === "Medium" ? "text-warning font-semibold" : "text-danger font-semibold"
-                                }>{p.difficulty}</span>
-                                <span>•</span>
-                                <span>Acceptance: {p.acceptance}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <Link to={`/problems/${p.id}`}>
-                            <Button size="sm" variant="ghost" className="px-2">
+                        <Box key={probId} sx={{
+                          display: "flex", alignItems: "center", justifyContent: "space-between",
+                          p: 1.75, backgroundColor: "rgba(26,26,26,0.45)", border: "1px solid", borderColor: "divider",
+                          borderRadius: "12px", transition: "all 0.2s", cursor: "pointer",
+                          "&:hover": { borderColor: "rgba(212,175,55,0.5)", backgroundColor: "background.card" },
+                        }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            {isSolved
+                              ? <CheckCircle2 size={16} style={{ color: "#22C55E", flexShrink: 0 }} />
+                              : <Play size={14} style={{ color: "rgba(161,161,170,0.5)", flexShrink: 0 }} />
+                            }
+                            <Box>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block" }}>{p.title}</Typography>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mt: 0.5 }}>
+                                <Typography variant="caption" sx={{ color: difficultyColor[p.difficulty], fontWeight: "bold", fontSize: "10px" }}>{p.difficulty}</Typography>
+                                <span style={{ color: "#A1A1AA", fontSize: "10px" }}>•</span>
+                                <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "10px" }}>Acceptance: {p.acceptance}</Typography>
+                              </Box>
+                            </Box>
+                          </Box>
+                          <Link to={`/problems/${p.id}`} style={{ textDecoration: "none" }}>
+                            <Button size="sm" variant="ghost" style={{ padding: "4px 8px", display: "flex", alignItems: "center", gap: "4px" }}>
                               Solve <ChevronRight size={14} />
                             </Button>
                           </Link>
-                        </div>
+                        </Box>
                       );
                     })}
-                  </div>
-                </div>
+                  </Box>
+                </Box>
               ))}
-            </div>
+            </Box>
           </Card>
-        </div>
+        </Grid>
 
         {/* Roadmap metrics & highlights */}
-        <div className="flex flex-col gap-6 h-full">
-          <Card className="p-5 text-left">
-            <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-4">Milestones & Perks</h3>
-            <div className="flex flex-col gap-4">
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20">
+        <Grid item xs={12} lg={4}>
+          <Card style={{ padding: "20px", textAlign: "left" }}>
+            <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em", display: "block", mb: 2 }}>
+              Milestones & Perks
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Box sx={{ display: "flex", gap: 1.5 }}>
+                <Box sx={{ width: 32, height: 32, borderRadius: "8px", backgroundColor: "rgba(16,185,129,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#10B981", border: "1px solid rgba(16,185,129,0.2)", flexShrink: 0 }}>
                   <BookCheck size={16} />
-                </div>
-                <div>
-                  <h4 className="text-xs font-semibold text-text-primary">Unlock Certificate</h4>
-                  <p className="text-[10px] text-text-secondary mt-0.5 leading-relaxed font-light">
+                </Box>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block" }}>Unlock Certificate</Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "light", lineHeight: 1.5 }}>
                     Complete 100% of the modules in this path to unlock a verifiable preparation certificate.
-                  </p>
-                </div>
-              </div>
+                  </Typography>
+                </Box>
+              </Box>
 
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent border border-accent/20">
+              <Box sx={{ display: "flex", gap: 1.5 }}>
+                <Box sx={{ width: 32, height: 32, borderRadius: "8px", backgroundColor: "rgba(212,175,55,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#D4AF37", border: "1px solid rgba(212,175,55,0.2)", flexShrink: 0 }}>
                   <Target size={16} />
-                </div>
-                <div>
-                  <h4 className="text-xs font-semibold text-text-primary">Target Practice</h4>
-                  <p className="text-[10px] text-text-secondary mt-0.5 leading-relaxed font-light">
+                </Box>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block" }}>Target Practice</Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "light", lineHeight: 1.5 }}>
                     These problems are explicitly weighted by FAANG interview loop frequency data.
-                  </p>
-                </div>
-              </div>
-            </div>
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
           </Card>
-        </div>
-      </div>
-    </div>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 export default StudyPlans;

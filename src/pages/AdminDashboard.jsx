@@ -1,15 +1,23 @@
 import React, { useState } from "react";
-import { PlusCircle, ShieldAlert, Award, FileSpreadsheet, Eye, Trash2, ArrowUpRight } from "lucide-react";
+import { PlusCircle, Eye, Trash2 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { Card, CardHeader, CardBody } from "../components/ui/Card";
 import { Input, TextArea } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 
+// MUI Imports
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import ButtonBase from "@mui/material/ButtonBase";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+
 export const AdminDashboard = () => {
   const { problems, addProblem, users } = useApp();
 
-  // New problem form fields
   const [title, setTitle] = useState("");
   const [difficulty, setDifficulty] = useState("Medium");
   const [description, setDescription] = useState("");
@@ -19,157 +27,129 @@ export const AdminDashboard = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim() || !description.trim()) return;
-
-    addProblem({
-      title,
-      difficulty,
-      description,
-      tags: tags.split(",").map(t => t.trim()),
-      companies: companies.split(",").map(c => c.trim())
-    });
-
-    // Reset fields
-    setTitle("");
-    setDescription("");
-    setTags("Arrays");
-    setCompanies("Google");
+    addProblem({ title, difficulty, description, tags: tags.split(",").map(t => t.trim()), companies: companies.split(",").map(c => c.trim()) });
+    setTitle(""); setDescription(""); setTags("Arrays"); setCompanies("Google");
   };
 
+  const difficultyColor = { Easy: "#22C55E", Medium: "#F59E0B", Hard: "#EF4444" };
+
+  const metrics = [
+    { label: "Active Problems", count: problems.length, detail: "Across all diff levels" },
+    { label: "Registered Users", count: users.length, detail: "Platform wide registrations" },
+    { label: "Ongoing Sprints", count: 2, detail: "Contest evaluation buffers" },
+    { label: "Reported Anomalies", count: 0, detail: "Auto-moderated flags" }
+  ];
+
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-24 pb-12 flex flex-col gap-6 text-left">
-      <div className="flex items-center gap-2">
-        <h2 className="text-xl sm:text-2xl font-extrabold text-text-primary">Admin Control Center</h2>
+    <Box sx={{ maxWidth: "1280px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>Admin Control Center</Typography>
         <Badge variant="primary" size="sm">Platform Administrator</Badge>
-      </div>
+      </Box>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Active Problems", count: problems.length, detail: "Across all diff levels" },
-          { label: "Registered Users", count: users.length, detail: "Platform wide registrations" },
-          { label: "Ongoing Sprints", count: 2, detail: "Contest evaluation buffers" },
-          { label: "Reported Anomalies", count: 0, detail: "Auto-moderated flags" }
-        ].map((m, idx) => (
-          <Card key={idx} className="p-4">
-            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{m.label}</span>
-            <div className="text-2xl font-extrabold text-text-primary mt-1.5 font-mono">{m.count}</div>
-            <span className="text-[9px] text-text-secondary mt-1 font-light block">{m.detail}</span>
-          </Card>
+      <Grid container spacing={2}>
+        {metrics.map((m, idx) => (
+          <Grid item xs={6} md={3} key={idx}>
+            <Card style={{ padding: "16px" }}>
+              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "10px", display: "block" }}>{m.label}</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, color: "text.primary", mt: 0.75, fontFamily: "monospace" }}>{m.count}</Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: "light", display: "block", mt: 0.5, fontSize: "9px" }}>{m.detail}</Typography>
+            </Card>
+          </Grid>
         ))}
-      </div>
+      </Grid>
 
-      {/* Forms & Table Layout split view */}
-      <div className="grid lg:grid-cols-5 gap-6">
+      {/* Forms & Table Layout */}
+      <Grid container spacing={3}>
         {/* Left Column: Form compiler */}
-        <div className="lg:col-span-2">
-          <Card className="p-6">
-            <CardHeader className="mb-4 pb-2">
-              <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider flex items-center gap-1">
-                <PlusCircle size={14} className="text-accent" /> Register Coding Challenge
-              </h3>
+        <Grid item xs={12} lg={5}>
+          <Card style={{ padding: "24px" }}>
+            <CardHeader style={{ marginBottom: "16px", paddingBottom: "8px" }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                <PlusCircle size={14} style={{ color: "#FFD700" }} />
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  Register Coding Challenge
+                </Typography>
+              </Box>
             </CardHeader>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-left">
-              <Input
-                label="Problem Title"
-                id="adm-title"
-                placeholder="e.g. Find K-th Graph Path"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2, textAlign: "left" }}>
+              <Input label="Problem Title" id="adm-title" placeholder="e.g. Find K-th Graph Path" value={title} onChange={(e) => setTitle(e.target.value)} required />
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-text-secondary">Difficulty Level</label>
-                <select
-                  value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value)}
-                  className="bg-surface border border-border text-text-primary text-xs rounded-lg px-3 py-2 cursor-pointer focus:outline-none"
-                >
-                  <option value="Easy">Easy</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Hard">Hard</option>
-                </select>
-              </div>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>Difficulty Level</Typography>
+                <Select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} size="small"
+                  sx={{ fontSize: "12px", color: "text.primary", backgroundColor: "background.paper", "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" }, "& .MuiSelect-icon": { color: "text.secondary" } }}>
+                  {["Easy", "Medium", "Hard"].map(d => <MenuItem key={d} value={d} sx={{ fontSize: "12px" }}>{d}</MenuItem>)}
+                </Select>
+              </Box>
 
-              <TextArea
-                label="Problem Description (Markdown supported)"
-                id="adm-desc"
-                placeholder="Describe constraints and input details..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-              />
+              {typeof TextArea === "function" ? (
+                <TextArea label="Problem Description (Markdown supported)" id="adm-desc" placeholder="Describe constraints and input details..." value={description} onChange={(e) => setDescription(e.target.value)} required />
+              ) : (
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>Problem Description</Typography>
+                  <Box component="textarea" rows={4} placeholder="Describe constraints and input details..." value={description} onChange={(e) => setDescription(e.target.value)} required
+                    sx={{ backgroundColor: "background.paper", border: "1px solid", borderColor: "divider", borderRadius: "8px", p: 1.5, fontSize: "12px", color: "text.primary", resize: "vertical", fontFamily: "inherit", "&:focus": { outline: "none", borderColor: "primary.main" } }} />
+                </Box>
+              )}
 
-              <Input
-                label="Topic Tags (comma-separated)"
-                id="adm-tags"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                required
-              />
+              <Input label="Topic Tags (comma-separated)" id="adm-tags" value={tags} onChange={(e) => setTags(e.target.value)} required />
+              <Input label="Target Companies (comma-separated)" id="adm-comp" value={companies} onChange={(e) => setCompanies(e.target.value)} required />
 
-              <Input
-                label="Target Companies (comma-separated)"
-                id="adm-comp"
-                value={companies}
-                onChange={(e) => setCompanies(e.target.value)}
-                required
-              />
-
-              <Button type="submit" className="w-full py-2.5 font-semibold mt-2">
+              <Button type="submit" style={{ width: "100%", fontWeight: "bold", marginTop: "8px" }}>
                 Deploy Challenge
               </Button>
-            </form>
+            </Box>
           </Card>
-        </div>
+        </Grid>
 
         {/* Right Column: Problems review logs */}
-        <div className="lg:col-span-3">
-          <Card className="p-5">
-            <CardHeader className="mb-4 pb-2">
-              <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">Recently Registered Challenges</h3>
+        <Grid item xs={12} lg={7}>
+          <Card style={{ padding: "20px" }}>
+            <CardHeader style={{ marginBottom: "16px", paddingBottom: "8px" }}>
+              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                Recently Registered Challenges
+              </Typography>
             </CardHeader>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-border/60 bg-card/25 text-[10px] font-bold tracking-wider text-text-secondary uppercase">
-                    <th className="py-2.5 px-4 w-12 text-center">ID</th>
-                    <th className="py-2.5 px-4">Title</th>
-                    <th className="py-2.5 px-4">Difficulty</th>
-                    <th className="py-2.5 px-4 text-right">Moderations</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/30 text-xs">
+
+            <Box sx={{ overflowX: "auto" }}>
+              <Box component="table" sx={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+                <Box component="thead">
+                  <Box component="tr" sx={{ borderBottom: "1px solid rgba(44,44,44,0.6)", backgroundColor: "rgba(26,26,26,0.25)" }}>
+                    {[{ label: "ID", align: "center" }, { label: "Title" }, { label: "Difficulty" }, { label: "Moderations", align: "right" }].map(h => (
+                      <Box key={h.label} component="th" sx={{ py: 1.25, px: 2, fontSize: "10px", fontWeight: "bold", letterSpacing: "0.1em", color: "text.secondary", textTransform: "uppercase", textAlign: h.align || "left" }}>
+                        {h.label}
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+                <Box component="tbody">
                   {problems.slice(0, 10).map((p) => (
-                    <tr key={p.id} className="hover:bg-card/20 transition-colors">
-                      <td className="py-2.5 px-4 text-center font-mono text-text-secondary">{p.id}</td>
-                      <td className="py-2.5 px-4 font-semibold text-text-primary">{p.title}</td>
-                      <td className="py-2.5 px-4 font-bold">
-                        <span className={
-                          p.difficulty === "Easy" ? "text-success" : p.difficulty === "Medium" ? "text-warning" : "text-danger"
-                        }>
-                          {p.difficulty}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-4 text-right flex justify-end gap-1.5 mt-0.5">
-                        <button className="p-1 rounded bg-card border border-border text-text-secondary hover:text-text-primary cursor-pointer">
-                          <Eye size={12} />
-                        </button>
-                        <button className="p-1 rounded bg-card border border-border text-danger hover:bg-danger/10 cursor-pointer">
-                          <Trash2 size={12} />
-                        </button>
-                      </td>
-                    </tr>
+                    <Box component="tr" key={p.id} sx={{ borderBottom: "1px solid rgba(44,44,44,0.3)", transition: "background-color 0.2s", "&:hover": { backgroundColor: "rgba(26,26,26,0.2)" } }}>
+                      <Box component="td" sx={{ py: 1.25, px: 2, textAlign: "center", fontFamily: "monospace", color: "text.secondary", fontSize: "12px" }}>{p.id}</Box>
+                      <Box component="td" sx={{ py: 1.25, px: 2, fontWeight: "bold", color: "text.primary", fontSize: "12px" }}>{p.title}</Box>
+                      <Box component="td" sx={{ py: 1.25, px: 2, fontWeight: "bold", color: difficultyColor[p.difficulty], fontSize: "12px" }}>{p.difficulty}</Box>
+                      <Box component="td" sx={{ py: 1.25, px: 2, textAlign: "right" }}>
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 0.75 }}>
+                          <ButtonBase sx={{ p: 0.5, borderRadius: "4px", border: "1px solid", borderColor: "divider", backgroundColor: "background.card", color: "text.secondary", "&:hover": { color: "text.primary" } }}>
+                            <Eye size={12} />
+                          </ButtonBase>
+                          <ButtonBase sx={{ p: 0.5, borderRadius: "4px", border: "1px solid", borderColor: "divider", backgroundColor: "background.card", color: "#D32F2F", "&:hover": { backgroundColor: "rgba(211,47,47,0.1)" } }}>
+                            <Trash2 size={12} />
+                          </ButtonBase>
+                        </Box>
+                      </Box>
+                    </Box>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </Box>
+              </Box>
+            </Box>
           </Card>
-        </div>
-      </div>
-    </div>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 export default AdminDashboard;

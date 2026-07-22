@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { Search, Flame, Award, BookOpen, HelpCircle, Navigation } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+
+// MUI Imports
+import Dialog from "@mui/material/Dialog";
+import Box from "@mui/material/Box";
+import InputBase from "@mui/material/InputBase";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
 export const CommandPalette = () => {
   const {
@@ -11,13 +17,11 @@ export const CommandPalette = () => {
     commandPaletteOpen,
     setCommandPaletteOpen,
     solveProblem,
-    addNotification
   } = useApp();
   const [search, setSearch] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const navigate = useNavigate();
   const inputRef = useRef(null);
-  const containerRef = useRef(null);
 
   // Keyboard shortcut listener for Ctrl+K
   useEffect(() => {
@@ -25,9 +29,6 @@ export const CommandPalette = () => {
       if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         e.preventDefault();
         setCommandPaletteOpen((prev) => !prev);
-      }
-      if (e.key === "Escape") {
-        setCommandPaletteOpen(false);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -42,19 +43,6 @@ export const CommandPalette = () => {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [commandPaletteOpen]);
-
-  // Close when clicking outside
-  useEffect(() => {
-    const handleOutsideClick = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setCommandPaletteOpen(false);
-      }
-    };
-    if (commandPaletteOpen) {
-      document.addEventListener("mousedown", handleOutsideClick);
-    }
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [commandPaletteOpen, setCommandPaletteOpen]);
 
   // Compile options based on search query
   const staticActions = [
@@ -108,99 +96,207 @@ export const CommandPalette = () => {
   };
 
   return (
-    <AnimatePresence>
-      {commandPaletteOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-bg/85 backdrop-blur-md cursor-pointer"
-          />
+    <Dialog
+      open={commandPaletteOpen}
+      onClose={() => setCommandPaletteOpen(false)}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          backgroundColor: "background.paper",
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: "12px",
+          boxShadow: "0px 8px 32px rgba(0, 0, 0, 0.5)",
+          overflow: "hidden",
+        },
+      }}
+    >
+      {/* Search Input Box */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          px: 2,
+          py: 1.5,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Search size={18} style={{ color: "#CFCFCF" }} />
+        <InputBase
+          inputRef={inputRef}
+          placeholder="Search coding challenges or run quick actions..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setSelectedIndex(0);
+          }}
+          onKeyDown={handleListKeyDown}
+          sx={{
+            flex: 1,
+            fontSize: "14px",
+            color: "text.primary",
+          }}
+        />
+        <Button
+          onClick={() => setCommandPaletteOpen(false)}
+          sx={{
+            fontSize: "10px",
+            color: "text.secondary",
+            backgroundColor: "background.card",
+            border: "1px solid",
+            borderColor: "divider",
+            minWidth: 0,
+            px: 1.5,
+            py: 0.25,
+            textTransform: "none",
+            "&:hover": {
+              color: "text.primary",
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+            },
+          }}
+        >
+          ESC
+        </Button>
+      </Box>
 
-          {/* Palette Dialog */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: -10 }}
-            transition={{ duration: 0.2 }}
-            ref={containerRef}
-            className="relative z-10 w-full max-w-xl bg-surface border border-border rounded-xl shadow-2xl overflow-hidden flex flex-col"
+      {/* Actions List */}
+      <Box
+        sx={{
+          maxHeight: 320,
+          overflowY: "auto",
+          p: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 0.5,
+        }}
+      >
+        {allItems.length === 0 ? (
+          <Typography
+            variant="caption"
+            sx={{
+              display: "block",
+              textAlign: "center",
+              py: 4,
+              color: "text.secondary",
+            }}
           >
-            {/* Search Input */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-border/40">
-              <Search size={18} className="text-text-secondary" />
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="Search coding challenges or run quick actions..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setSelectedIndex(0);
+            No results matching search filters
+          </Typography>
+        ) : (
+          allItems.map((item, index) => {
+            const Icon = item.icon;
+            const isSelected = index === selectedIndex;
+            return (
+              <Button
+                key={index}
+                onClick={() => {
+                  item.action();
+                  setCommandPaletteOpen(false);
                 }}
-                onKeyDown={handleListKeyDown}
-                className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-secondary/40 outline-none"
-              />
-              <button
-                onClick={() => setCommandPaletteOpen(false)}
-                className="text-[10px] text-text-secondary bg-card border border-border px-2 py-0.5 rounded hover:text-text-primary"
+                onMouseEnter={() => setSelectedIndex(index)}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  gap: 1.75,
+                  px: 2,
+                  py: 1.25,
+                  borderRadius: "8px",
+                  width: "100%",
+                  textAlign: "left",
+                  textTransform: "none",
+                  backgroundColor: isSelected ? "primary.main" : "transparent",
+                  color: isSelected ? "background.default" : "text.secondary",
+                  "&:hover": {
+                    backgroundColor: isSelected ? "primary.main" : "rgba(255, 255, 255, 0.05)",
+                    color: isSelected ? "background.default" : "text.primary",
+                  },
+                }}
               >
-                ESC
-              </button>
-            </div>
+                <Box
+                  sx={{
+                    p: 0.75,
+                    borderRadius: "6px",
+                    display: "flex",
+                    alignItems: "center",
+                    backgroundColor: isSelected ? "primary.dark" : "background.card",
+                    border: isSelected ? "none" : "1px solid",
+                    borderColor: "divider",
+                    color: isSelected ? "text.primary" : "text.secondary",
+                  }}
+                >
+                  <Icon size={14} />
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: "semibold",
+                      color: isSelected ? "background.default" : "text.primary",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {item.title}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: "block",
+                      mt: 0.25,
+                      color: isSelected ? "rgba(0, 0, 0, 0.7)" : "text.secondary",
+                      fontSize: "10px",
+                    }}
+                  >
+                    {item.subtitle}
+                  </Typography>
+                </Box>
+                {isSelected && (
+                  <Box
+                    sx={{
+                      fontSize: "10px",
+                      backgroundColor: "primary.dark",
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: "4px",
+                      color: "text.primary",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    ENTER
+                  </Box>
+                )}
+              </Button>
+            );
+          })
+        )}
+      </Box>
 
-            {/* Actions List */}
-            <div className="max-h-80 overflow-y-auto p-2 flex flex-col gap-0.5 text-left">
-              {allItems.length === 0 ? (
-                <div className="text-xs text-text-secondary text-center py-8">No results matching search filters</div>
-              ) : (
-                allItems.map((item, index) => {
-                  const Icon = item.icon;
-                  const isSelected = index === selectedIndex;
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        item.action();
-                        setCommandPaletteOpen(false);
-                      }}
-                      onMouseEnter={() => setSelectedIndex(index)}
-                      className={`flex items-center gap-3.5 px-4 py-3 rounded-lg w-full text-left transition-colors cursor-pointer ${
-                        isSelected ? "bg-primary text-text-primary" : "text-text-secondary hover:bg-card/40 hover:text-text-primary"
-                      }`}
-                    >
-                      <div className={`p-1.5 rounded-md ${isSelected ? "bg-primary-dark/60 text-text-primary" : "bg-card border border-border text-text-secondary"}`}>
-                        <Icon size={14} />
-                      </div>
-                      <div className="flex-1">
-                        <div className={`text-xs font-semibold ${isSelected ? "text-text-primary" : "text-text-primary"}`}>{item.title}</div>
-                        <div className={`text-[10px] mt-0.5 ${isSelected ? "text-text-primary/70" : "text-text-secondary"}`}>{item.subtitle}</div>
-                      </div>
-                      {isSelected && (
-                        <span className="text-[10px] bg-primary-dark/80 px-1.5 py-0.5 rounded text-text-primary font-bold animate-pulse">
-                          ENTER
-                        </span>
-                      )}
-                    </button>
-                  );
-                })
-              )}
-            </div>
-
-            {/* Shortcut hints footer */}
-            <div className="bg-card border-t border-border/40 px-4 py-2 flex items-center justify-between text-[10px] text-text-secondary">
-              <div className="flex gap-3">
-                <span>↑↓ Navigate</span>
-                <span>↵ Select</span>
-              </div>
-              <div>Quick Search Palette</div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+      {/* Shortcut hints footer */}
+      <Box
+        sx={{
+          backgroundColor: "background.card",
+          borderTop: "1px solid",
+          borderColor: "divider",
+          px: 2,
+          py: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          fontSize: "10px",
+          color: "text.secondary",
+        }}
+      >
+        <Box sx={{ display: "flex", gap: 2.5 }}>
+          <span>↑↓ Navigate</span>
+          <span>↵ Select</span>
+        </Box>
+        <div>Quick Search Palette</div>
+      </Box>
+    </Dialog>
   );
 };
+
 export default CommandPalette;

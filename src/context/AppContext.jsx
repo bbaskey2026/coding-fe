@@ -21,7 +21,7 @@ export const AppProvider = ({ children }) => {
 
   // Toast Notifications Stack
   const [notifications, setNotifications] = useState([
-    { id: 1, title: "Welcome to CodeForge!", message: "Explore challenges, complete roadmap modules, and practice mock interviews.", read: false, date: "Just now", type: "system" },
+    { id: 1, title: "Welcome to CodeX86!", message: "Explore challenges, complete roadmap modules, and practice mock interviews.", read: false, date: "Just now", type: "system" },
     { id: 2, title: "New Daily Challenge Active", message: "Solve 'Median of Two Sorted Arrays' today to extend your streak!", read: false, date: "1 hour ago", type: "challenge" }
   ]);
 

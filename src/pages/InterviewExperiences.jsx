@@ -7,189 +7,156 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Modal } from "../components/ui/Modal";
 
-export const InterviewExperiences = () => {
-  const {
-    interviewExperiences,
-    companies,
-    toggleExperienceBookmark,
-    bookmarkedExperienceIds
-  } = useApp();
+// MUI Imports
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import ButtonBase from "@mui/material/ButtonBase";
+import Divider from "@mui/material/Divider";
 
-  // Search & Filter state
+export const InterviewExperiences = () => {
+  const { interviewExperiences, companies, toggleExperienceBookmark, bookmarkedExperienceIds } = useApp();
+
   const [search, setSearch] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("All");
-
-  // Selected experience details Modal
   const [selectedExpId, setSelectedExpId] = useState(null);
 
   const activeExp = interviewExperiences.find(exp => exp.id === selectedExpId);
 
   const filteredExps = useMemo(() => {
     return interviewExperiences.filter((exp) => {
-      const matchSearch =
-        exp.title.toLowerCase().includes(search.toLowerCase()) ||
-        exp.role.toLowerCase().includes(search.toLowerCase()) ||
-        exp.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
-
+      const matchSearch = exp.title.toLowerCase().includes(search.toLowerCase()) || exp.role.toLowerCase().includes(search.toLowerCase()) || exp.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
       const matchCompany = selectedCompany === "All" || exp.company === selectedCompany;
-
       return matchSearch && matchCompany;
     });
   }, [interviewExperiences, search, selectedCompany]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-24 pb-12 flex flex-col gap-6 text-left">
-      <div>
-        <h2 className="text-xl sm:text-2xl font-extrabold text-text-primary">Interview Experiences</h2>
-        <p className="text-xs text-text-secondary mt-1">Read detailed technical assessment logs shared by actual candidates.</p>
-      </div>
+    <Box sx={{ maxWidth: "1280px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
+      <Box>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>Interview Experiences</Typography>
+        <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
+          Read detailed technical assessment logs shared by actual candidates.
+        </Typography>
+      </Box>
 
-      {/* Grid of Company shortcuts */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+      {/* Company grid shortcuts */}
+      <Grid container spacing={1.5}>
         {companies.slice(0, 8).map((comp) => {
           const isSelected = selectedCompany === comp.name;
           return (
-            <button
-              key={comp.id}
-              onClick={() => setSelectedCompany(isSelected ? "All" : comp.name)}
-              className={`p-3 border rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
-                isSelected
-                  ? "bg-primary/10 border-primary text-primary"
-                  : "bg-card border-border hover:border-text-secondary/50 text-text-secondary hover:text-text-primary"
-              }`}
-            >
-              <Briefcase size={16} className="mb-1.5" />
-              <span className="text-[10px] font-bold truncate max-w-[80px]">{comp.name}</span>
-            </button>
+            <Grid item xs={6} sm={3} lg={1.5} key={comp.id}>
+              <ButtonBase
+                onClick={() => setSelectedCompany(isSelected ? "All" : comp.name)}
+                sx={{
+                  width: "100%", p: 1.5, border: "1px solid", borderRadius: "12px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", cursor: "pointer", transition: "all 0.2s",
+                  borderColor: isSelected ? "primary.main" : "divider",
+                  backgroundColor: isSelected ? "rgba(212,175,55,0.1)" : "background.card",
+                  color: isSelected ? "primary.main" : "text.secondary",
+                  "&:hover": { borderColor: isSelected ? "primary.main" : "rgba(161,161,170,0.5)", color: "text.primary" },
+                }}>
+                <Briefcase size={16} style={{ marginBottom: "6px" }} />
+                <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "80px", display: "block" }}>{comp.name}</Typography>
+              </ButtonBase>
+            </Grid>
           );
         })}
-      </div>
+      </Grid>
 
       {/* Main split: Filter bar & list results */}
-      <div className="grid lg:grid-cols-4 gap-6">
+      <Grid container spacing={3}>
         {/* Left column: Search / filters */}
-        <div className="lg:col-span-1">
-          <Card className="p-4 flex flex-col gap-3">
-            <Input
-              id="exp-search"
-              placeholder="Search roles, tags..."
-              icon={Search}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        <Grid item xs={12} lg={3}>
+          <Card style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+            <Input id="exp-search" placeholder="Search roles, tags..." icon={Search} value={search} onChange={(e) => setSearch(e.target.value)} />
             {selectedCompany !== "All" && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedCompany("All")}
-                className="w-full text-[10px] font-bold"
-              >
+              <Button variant="outline" size="sm" onClick={() => setSelectedCompany("All")} style={{ width: "100%", fontSize: "10px", fontWeight: "bold" }}>
                 Clear Company Filter
               </Button>
             )}
           </Card>
-        </div>
+        </Grid>
 
         {/* Right column: Experiences list */}
-        <div className="lg:col-span-3 flex flex-col gap-3.5">
-          {filteredExps.length === 0 ? (
-            <div className="glass p-12 text-center text-xs text-text-secondary rounded-xl">
-              No interview experiences matching criteria. Try broadening search queries.
-            </div>
-          ) : (
-            filteredExps.map((exp) => {
-              const isSaved = bookmarkedExperienceIds.includes(exp.id);
-              
-              return (
-                <div
-                  key={exp.id}
-                  onClick={() => setSelectedExpId(exp.id)}
-                  className="p-5 bg-card/45 border border-border hover:border-text-secondary/40 rounded-xl flex gap-4 text-left cursor-pointer transition-all hover:bg-card group"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="flex gap-2 items-center">
-                        <Badge variant="primary" size="sm">{exp.company}</Badge>
-                        <span className="text-[9px] text-text-secondary font-mono">{exp.date}</span>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleExperienceBookmark(exp.id);
-                        }}
-                        className="text-text-secondary hover:text-text-primary p-1 cursor-pointer rounded"
-                      >
-                        {isSaved ? (
-                          <BookmarkCheck size={14} className="text-primary" />
-                        ) : (
-                          <Bookmark size={14} />
-                        )}
-                      </button>
-                    </div>
+        <Grid item xs={12} lg={9}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.75 }}>
+            {filteredExps.length === 0 ? (
+              <Box className="glass" sx={{ p: 6, textAlign: "center", fontSize: "12px", color: "text.secondary", borderRadius: "12px" }}>
+                No interview experiences matching criteria. Try broadening search queries.
+              </Box>
+            ) : (
+              filteredExps.map((exp) => {
+                const isSaved = bookmarkedExperienceIds.includes(exp.id);
+                return (
+                  <Box key={exp.id} onClick={() => setSelectedExpId(exp.id)}
+                    sx={{
+                      p: 2.5, backgroundColor: "rgba(26,26,26,0.45)", border: "1px solid", borderColor: "divider", borderRadius: "12px",
+                      display: "flex", gap: 2, textAlign: "left", cursor: "pointer", transition: "all 0.2s",
+                      "&:hover": { borderColor: "rgba(161,161,170,0.4)", backgroundColor: "background.card" },
+                    }}>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                          <Badge variant="primary" size="sm">{exp.company}</Badge>
+                          <Typography variant="caption" sx={{ color: "text.secondary", fontFamily: "monospace", fontSize: "9px" }}>{exp.date}</Typography>
+                        </Box>
+                        <ButtonBase onClick={(e) => { e.stopPropagation(); toggleExperienceBookmark(exp.id); }}
+                          sx={{ p: 0.5, borderRadius: "4px", color: isSaved ? "primary.main" : "text.secondary", "&:hover": { color: "text.primary" } }}>
+                          {isSaved ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
+                        </ButtonBase>
+                      </Box>
 
-                    <h4 className="text-xs font-bold text-text-primary group-hover:text-primary transition-colors truncate">
-                      {exp.title}
-                    </h4>
-                    <p className="text-[10px] text-text-secondary mt-1.5 leading-relaxed font-light line-clamp-2">
-                      {exp.summary}
-                    </p>
+                      <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {exp.title}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.75, display: "block", lineHeight: 1.5, fontWeight: "light", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        {exp.summary}
+                      </Typography>
 
-                    <div className="flex gap-1.5 mt-3 flex-wrap">
-                      <Badge variant={exp.difficulty === "Easy" ? "success" : exp.difficulty === "Medium" ? "warning" : "danger"} size="sm">
-                        {exp.difficulty}
-                      </Badge>
-                      <Badge variant={exp.verdict === "Accepted" ? "success" : "danger"} size="sm">
-                        {exp.verdict}
-                      </Badge>
-                      {exp.tags.map(t => (
-                        <Badge key={t} size="sm" className="font-light">{t}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <ChevronRight size={16} className="text-text-secondary/40 group-hover:text-text-primary transition-colors" />
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </div>
+                      <Box sx={{ display: "flex", gap: 0.75, mt: 1.5, flexWrap: "wrap" }}>
+                        <Badge variant={exp.difficulty === "Easy" ? "success" : exp.difficulty === "Medium" ? "warning" : "danger"} size="sm">{exp.difficulty}</Badge>
+                        <Badge variant={exp.verdict === "Accepted" ? "success" : "danger"} size="sm">{exp.verdict}</Badge>
+                        {exp.tags.map(t => <Badge key={t} size="sm">{t}</Badge>)}
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <ChevronRight size={16} style={{ color: "rgba(161,161,170,0.4)" }} />
+                    </Box>
+                  </Box>
+                );
+              })
+            )}
+          </Box>
+        </Grid>
+      </Grid>
 
       {/* Detailed Experience Modal */}
       <Modal isOpen={selectedExpId !== null} onClose={() => setSelectedExpId(null)} title="Interview Detailed Log">
         {activeExp && (
-          <div className="flex flex-col gap-4 font-light">
-            <div className="flex justify-between items-center">
-              <div className="flex gap-2.5 items-center">
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, fontWeight: "light" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Box sx={{ display: "flex", gap: 1.25, alignItems: "center" }}>
                 <Badge variant="primary" size="sm">{activeExp.company}</Badge>
-                <h3 className="text-sm font-bold text-text-primary">{activeExp.role}</h3>
-              </div>
-              <Badge variant={activeExp.verdict === "Accepted" ? "success" : "danger"} size="sm">
-                {activeExp.verdict}
-              </Badge>
-            </div>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary" }}>{activeExp.role}</Typography>
+              </Box>
+              <Badge variant={activeExp.verdict === "Accepted" ? "success" : "danger"} size="sm">{activeExp.verdict}</Badge>
+            </Box>
 
-            <div className="border-t border-border/30 my-2" />
+            <Divider sx={{ borderColor: "rgba(44,44,44,0.3)" }} />
 
-            <div className="text-xs sm:text-sm text-text-primary leading-relaxed whitespace-pre-wrap font-normal">
+            <Typography variant="body2" sx={{ color: "text.primary", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
               {activeExp.content.replace(/###/g, "").replace(/\*\*/g, "")}
-            </div>
+            </Typography>
 
-            <div className="mt-6 pt-4 border-t border-border/30 flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedExpId(null)}
-                className="w-full font-semibold"
-              >
+            <Box sx={{ mt: 3, pt: 2, borderTop: "1px solid rgba(44,44,44,0.3)" }}>
+              <Button variant="outline" size="sm" onClick={() => setSelectedExpId(null)} style={{ width: "100%", fontWeight: "bold" }}>
                 Close Log
               </Button>
-            </div>
-          </div>
+            </Box>
+          </Box>
         )}
       </Modal>
-    </div>
+    </Box>
   );
 };
 export default InterviewExperiences;

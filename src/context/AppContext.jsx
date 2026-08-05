@@ -1,12 +1,47 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { generateMockData } from "../data/mockDataGenerator";
+import { useAuth } from "./AuthContext";
+import { problemsService } from "../services/problems.service";
+import { companyGuidesService } from "../services/companyGuides.service";
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
+  const { isAuthenticated } = useAuth();
   const [data, setData] = useState(() => generateMockData());
   const [userProfile, setUserProfile] = useState(data.userProfile);
-  const [problems, setProblems] = useState(data.problems);
+  const [problems, setProblems] = useState([]);
+  const [companyGuides, setCompanyGuides] = useState([]);
+
+  // Fetch problems and company guides from backend once authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const fetchProblems = async () => {
+        try {
+          const list = await problemsService.getAll();
+          if (list && Array.isArray(list)) {
+            setProblems(list);
+          }
+        } catch (err) {
+          console.error("Failed to fetch problems from live backend. Using mock catalog as fallback.", err);
+        }
+      };
+
+      const fetchCompanyGuides = async () => {
+        try {
+          const list = await companyGuidesService.getAll();
+          if (list && Array.isArray(list)) {
+            setCompanyGuides(list);
+          }
+        } catch (err) {
+          console.error("Failed to fetch company guides from live backend.", err);
+        }
+      };
+
+      fetchProblems();
+      fetchCompanyGuides();
+    }
+  }, [isAuthenticated]);
   const [contests, setContests] = useState(data.contests);
   const [forumPosts, setForumPosts] = useState(data.forumPosts);
   const [interviewExperiences, setInterviewExperiences] = useState(data.interviewExperiences);
@@ -263,6 +298,8 @@ export const AppProvider = ({ children }) => {
       userProfile,
       setUserProfile,
       problems,
+      companyGuides,
+      setCompanyGuides,
       contests,
       forumPosts,
       interviewExperiences,

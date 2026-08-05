@@ -12,6 +12,7 @@ import {
   UserCheck,
   FileText,
   FileCheck,
+  BookOpen,
   ChevronLeft,
   ChevronRight,
   X
@@ -30,6 +31,7 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
     { name: "Home", path: "/", icon: LayoutDashboard },
     { name: "Dashboard", path: "/dashbaord", icon: LayoutDashboard },
     { name: "Problems", path: "/problems", icon: Code2 },
+    { name: "Company Guides", path: "/company-guides", icon: BookOpen },
     { name: "Study Plans", path: "/study-plans", icon: Map },
     { name: "Contests", path: "/contests", icon: Trophy },
     { name: "Leaderboard", path: "/leaderboard", icon: BarChart3 },

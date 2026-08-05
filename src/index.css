@@ -4,8 +4,8 @@ html {
 }
 
 body {
-  background-color: #000000;
-  color: #FFFFFF;
+  background-color: #FFFFFF;
+  color: #000000;
   font-family: 'Geist', system-ui, -apple-system, sans-serif;
   font-size: 1rem;
   line-height: 1.625;
@@ -50,10 +50,10 @@ button {
 }
 
 .glass-card {
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
 }
 
 .glow-primary {

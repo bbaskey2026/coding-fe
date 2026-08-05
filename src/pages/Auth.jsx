@@ -12,6 +12,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
+import ButtonBase from "@mui/material/ButtonBase";
 
 export const Auth = () => {
   const [screen,      setScreen]      = useState("login"); // login | register | forgot | otp | reset

@@ -32,6 +32,8 @@ const Dashboard = lazy(() => import("../pages/Dashboard").then((m) => ({ default
 const Hero = lazy(() => import("../pages/Hero"));
 const ProblemList = lazy(() => import("../pages/ProblemList").then((m) => ({ default: m.ProblemList })));
 const ProblemDetails = lazy(() => import("../pages/ProblemDetails").then((m) => ({ default: m.ProblemDetails })));
+const CompanyGuides = lazy(() => import("../pages/CompanyGuides").then((m) => ({ default: m.CompanyGuides })));
+const CompanyGuideDetails = lazy(() => import("../pages/CompanyGuideDetails").then((m) => ({ default: m.CompanyGuideDetails })));
 const StudyPlans = lazy(() => import("../pages/StudyPlans").then((m) => ({ default: m.StudyPlans })));
 const Leaderboard = lazy(() => import("../pages/Leaderboard").then((m) => ({ default: m.Leaderboard })));
 const Profile = lazy(() => import("../pages/Profile").then((m) => ({ default: m.Profile })));
@@ -56,6 +58,8 @@ export const router = createBrowserRouter([
           { path: "/dashbaord",      element: withSuspense(Dashboard) },
           { path: "/problems",       element: withSuspense(ProblemList) },
           { path: "/problems/:id",   element: withSuspense(ProblemDetails) },
+          { path: "/company-guides", element: withSuspense(CompanyGuides) },
+          { path: "/company-guides/:id", element: withSuspense(CompanyGuideDetails) },
           { path: "/study-plans",    element: withSuspense(StudyPlans) },
           { path: "/leaderboard",    element: withSuspense(Leaderboard) },
           { path: "/profile",        element: withSuspense(Profile) },

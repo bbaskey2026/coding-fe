@@ -53,10 +53,10 @@ export const Card = ({
   };
 
   const cardStyles = {
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    backgroundColor: "background.paper",
     backdropFilter: "blur(10px)",
     WebkitBackdropFilter: "blur(10px)",
-    boxShadow: "0 8px 32px 0 rgba(255, 255, 255, 0.15)",
+    boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.06)",
     p: 3,
     borderRadius: "12px",
     display: "flex",

@@ -163,6 +163,14 @@ export const ProblemDetails = () => {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
+  if (!problem) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', bgcolor: 'background.default' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   const isBookmarked = bookmarkedProblemIds.includes(problem.id);
 
   const handleRunCode = () => {
@@ -491,11 +499,11 @@ export const ProblemDetails = () => {
             </Box>
 
             {/* Monaco Editor */}
-            <Box sx={{ flex: 1, width: "100%", bgcolor: "#1e1e1e", position: "relative", minHeight: 300 }}>
+            <Box sx={{ flex: 1, width: "100%", bgcolor: "background.paper", position: "relative", minHeight: 300 }}>
               <Editor
                 height="100%"
                 language={language}
-                theme="vs-dark"
+                theme="light"
                 value={editorValue}
                 onChange={(val) => setEditorValue(val || "")}
                 options={{
@@ -516,7 +524,7 @@ export const ProblemDetails = () => {
                 height: 192,
                 borderTop: "1px solid",
                 borderColor: "divider",
-                bgcolor: "#0e0e10",
+                bgcolor: "background.card",
                 p: 2,
                 display: "flex",
                 flexDirection: "column",

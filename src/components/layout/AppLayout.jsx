@@ -5,8 +5,9 @@
  * The Sidebar is collapsible on desktop and a slide-in drawer on mobile.
  */
 import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
+import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "./Navbar";
 import { Sidebar } from "./Sidebar";
 import { Footer } from "./Footer";
@@ -16,6 +17,7 @@ import { NotificationCenter } from "../features/NotificationCenter";
 export const AppLayout = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
+  const location = useLocation();
 
   return (
     <>
@@ -63,9 +65,22 @@ export const AppLayout = () => {
               flex: 1,
               pt: 10,
               minHeight: "calc(100vh - 80px)",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <Outlet />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                style={{ display: "flex", flexDirection: "column", flexGrow: 1, width: "100%" }}
+              >
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
           </Box>
 
           {/* Footer */}

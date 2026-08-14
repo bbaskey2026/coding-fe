@@ -67,8 +67,8 @@ button {
 }
 
 .glow-accent:hover {
-  box-shadow: 0 0 25px rgba(14, 165, 233, 0.15);
-  border-color: rgba(14, 165, 233, 0.3);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  border-color: rgba(128, 128, 128, 0.4);
 }
 
 /* Custom styling for inputs */
@@ -76,8 +76,8 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
 }
 
 /* Custom code editor styling */
@@ -209,4 +209,11 @@ textarea:focus {
     47% 15%, 60% 0%, 73% 15%, 87% 0%,
     100% 15%, 100% 100%, 0% 100%
   );
+}
+
+/* ── Fullscreen Layout Override ──────────────────────────────────────── */
+main > div > .MuiBox-root,
+main > div > div {
+  max-width: 100% !important;
+  width: 100% !important;
 }

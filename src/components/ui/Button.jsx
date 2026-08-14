@@ -1,6 +1,7 @@
 import React from "react";
 import ButtonMui from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import { motion } from "framer-motion";
 
 export const Button = ({
   children,
@@ -15,6 +16,8 @@ export const Button = ({
 }) => {
   const getVariantStyles = () => {
     switch (variant) {
+      case "danger":
+      case "success":
       case "primary":
         return {
           backgroundColor: "primary.main",
@@ -23,57 +26,6 @@ export const Button = ({
           boxShadow: "0 0 15px rgba(212, 175, 55, 0.3)",
           "&:hover": {
             backgroundColor: "primary.dark",
-          },
-        };
-      case "secondary":
-        return {
-          backgroundColor: "background.paper",
-          border: "1px solid",
-          borderColor: "divider",
-          color: "text.primary",
-          "&:hover": {
-            backgroundColor: "background.card",
-          },
-        };
-      case "outline":
-        return {
-          backgroundColor: "transparent",
-          border: "1px solid",
-          borderColor: "divider",
-          color: "text.primary",
-          "&:hover": {
-            backgroundColor: "background.card",
-            borderColor: "text.secondary",
-          },
-        };
-      case "ghost":
-        return {
-          backgroundColor: "transparent",
-          color: "text.secondary",
-          border: "1px solid transparent",
-          "&:hover": {
-            color: "text.primary",
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
-          },
-        };
-      case "danger":
-        return {
-          backgroundColor: "#D32F2F",
-          color: "#FFFFFF",
-          border: "1px solid transparent",
-          boxShadow: "0 0 15px rgba(211, 47, 47, 0.3)",
-          "&:hover": {
-            backgroundColor: "#C62828",
-          },
-        };
-      case "success":
-        return {
-          backgroundColor: "#2E7D32",
-          color: "#FFFFFF",
-          border: "1px solid transparent",
-          boxShadow: "0 0 15px rgba(46, 125, 50, 0.3)",
-          "&:hover": {
-            backgroundColor: "#1B5E20",
           },
         };
       default:
@@ -92,11 +44,15 @@ export const Button = ({
     }
   };
 
+  const MotionButton = motion(ButtonMui);
+
   return (
-    <ButtonMui
+    <MotionButton
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       sx={{
         textTransform: "none",
         fontWeight: "bold",
@@ -121,7 +77,7 @@ export const Button = ({
       )}
       {!loading && Icon && <Icon size={size === "sm" ? 14 : size === "lg" ? 18 : 16} />}
       {children}
-    </ButtonMui>
+    </MotionButton>
   );
 };
 

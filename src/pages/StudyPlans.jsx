@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Award, BookOpen, Target, CheckCircle2, ChevronRight, Play, BookCheck } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { Card } from "../components/ui/Card";
@@ -12,6 +13,19 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+};
 
 export const StudyPlans = () => {
   const { studyPlans, problems, userProfile } = useApp();
@@ -33,8 +47,14 @@ export const StudyPlans = () => {
   const difficultyColor = { Easy: "#22C55E", Medium: "#F59E0B", Hard: "#EF4444" };
 
   return (
-    <Box sx={{ maxWidth: "1280px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
-      <Box>
+    <Box
+      component={motion.div}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      sx={{ maxWidth: "1280px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}
+    >
+      <Box component={motion.div} variants={itemVariants}>
         <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>Curated Study Plans</Typography>
         <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
           Accelerate your training with structured node roadmap tracks.
@@ -47,7 +67,7 @@ export const StudyPlans = () => {
           const { solvedCount, totalCount } = getPlanProgress(plan);
           const isSelected = plan.id === selectedPlanId;
           return (
-            <Grid item xs={12} md={4} key={plan.id}>
+            <Grid item xs={12} md={4} key={plan.id} component={motion.div} variants={itemVariants}>
               <Card
                 onClick={() => setSelectedPlanId(plan.id)}
                 style={{
@@ -85,7 +105,7 @@ export const StudyPlans = () => {
       {/* Roadmap Modules Timeline details */}
       <Grid container spacing={3} sx={{ mt: 1 }}>
         {/* Modules Progression Tree */}
-        <Grid item xs={12} lg={8}>
+        <Grid item xs={12} lg={8} component={motion.div} variants={itemVariants}>
           <Card style={{ padding: "24px" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", pb: 1.5, borderBottom: "1px solid rgba(44,44,44,0.4)", mb: 3 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary" }}>
@@ -157,7 +177,7 @@ export const StudyPlans = () => {
         </Grid>
 
         {/* Roadmap metrics & highlights */}
-        <Grid item xs={12} lg={4}>
+        <Grid item xs={12} lg={4} component={motion.div} variants={itemVariants}>
           <Card style={{ padding: "20px", textAlign: "left" }}>
             <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em", display: "block", mb: 2 }}>
               Milestones & Perks

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Search, Clock, Award, Building, BookOpen, Ban } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { Card } from "../components/ui/Card";
@@ -23,6 +24,19 @@ const LOGO_GRADIENTS = {
   "Wipro": "linear-gradient(135deg, #9C27B0 0%, #E91E63 100%)",
   "Cognizant (CTS)": "linear-gradient(135deg, #3f51b5 0%, #2196f3 100%)",
   "Accenture": "linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%)"
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
 };
 
 export const CompanyGuides = () => {
@@ -64,6 +78,10 @@ export const CompanyGuides = () => {
 
   return (
     <Box
+      component={motion.div}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
       sx={{
         maxWidth: "1280px",
         mx: "auto",
@@ -80,7 +98,7 @@ export const CompanyGuides = () => {
       {/* Decorative background crosshatch */}
       <Box className="pattern-crosshatch" sx={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.3 }} />
 
-      <Box sx={{ zIndex: 1 }}>
+      <Box component={motion.div} variants={itemVariants} sx={{ zIndex: 1 }}>
         <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>Company Guides</Typography>
         <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
           Master recruitment exam patterns, test configurations, and interview DSA questions for major service-based companies.
@@ -88,7 +106,8 @@ export const CompanyGuides = () => {
       </Box>
 
       {/* Filters Card */}
-      <Card style={{ padding: "20px", zIndex: 1 }}>
+      <Box component={motion.div} variants={itemVariants} sx={{ zIndex: 1 }}>
+        <Card style={{ padding: "20px", zIndex: 1 }}>
         <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 1.75, alignItems: { md: "flex-end" } }}>
           {/* Search bar */}
           <Box sx={{ flex: 1 }}>
@@ -122,6 +141,7 @@ export const CompanyGuides = () => {
           </Box>
         </Box>
       </Card>
+      </Box>
 
       {/* Guides Grid */}
       <Box sx={{ zIndex: 1 }}>
@@ -136,7 +156,7 @@ export const CompanyGuides = () => {
             {filteredGuides.map((guide) => {
               const logoBg = LOGO_GRADIENTS[guide.companyName] || "linear-gradient(135deg, #111 0%, #222 100%)";
               return (
-                <Grid item xs={12} sm={6} md={4} key={guide.id}>
+                <Grid item xs={12} sm={6} md={4} key={guide.id} component={motion.div} variants={itemVariants}>
                   <Card hoverGlow={true} glowColor="primary" style={{ height: "100%", display: "flex", flexDirection: "column", p: "24px" }}>
                     {/* Header */}
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>

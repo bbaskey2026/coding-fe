@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Search, Briefcase, ChevronRight, Bookmark, BookmarkCheck } from "lucide-react";
+import { motion } from "framer-motion";
 import { useApp } from "../context/AppContext";
 import { Card } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
@@ -13,6 +14,19 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import ButtonBase from "@mui/material/ButtonBase";
 import Divider from "@mui/material/Divider";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+};
 
 export const InterviewExperiences = () => {
   const { interviewExperiences, companies, toggleExperienceBookmark, bookmarkedExperienceIds } = useApp();
@@ -32,41 +46,48 @@ export const InterviewExperiences = () => {
   }, [interviewExperiences, search, selectedCompany]);
 
   return (
-    <Box sx={{ maxWidth: "1280px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
-      <Box>
+    <Box
+      component={motion.div}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      sx={{ maxWidth: "1280px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}
+    >
+      <Box component={motion.div} variants={itemVariants}>
         <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>Interview Experiences</Typography>
         <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
           Read detailed technical assessment logs shared by actual candidates.
         </Typography>
       </Box>
 
-      {/* Company grid shortcuts */}
-      <Grid container spacing={1.5}>
-        {companies.slice(0, 8).map((comp) => {
-          const isSelected = selectedCompany === comp.name;
-          return (
-            <Grid item xs={6} sm={3} lg={1.5} key={comp.id}>
-              <ButtonBase
-                onClick={() => setSelectedCompany(isSelected ? "All" : comp.name)}
-                sx={{
-                  width: "100%", p: 1.5, border: "1px solid", borderRadius: "12px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", cursor: "pointer", transition: "all 0.2s",
-                  borderColor: isSelected ? "primary.main" : "divider",
-                  backgroundColor: isSelected ? "rgba(212,175,55,0.1)" : "background.card",
-                  color: isSelected ? "primary.main" : "text.secondary",
-                  "&:hover": { borderColor: isSelected ? "primary.main" : "rgba(161,161,170,0.5)", color: "text.primary" },
-                }}>
-                <Briefcase size={16} style={{ marginBottom: "6px" }} />
-                <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "80px", display: "block" }}>{comp.name}</Typography>
-              </ButtonBase>
-            </Grid>
-          );
-        })}
-      </Grid>
+      <Box component={motion.div} variants={itemVariants}>
+        <Grid container spacing={1.5}>
+          {companies.slice(0, 8).map((comp) => {
+            const isSelected = selectedCompany === comp.name;
+            return (
+              <Grid item xs={6} sm={3} lg={1.5} key={comp.id}>
+                <ButtonBase
+                  onClick={() => setSelectedCompany(isSelected ? "All" : comp.name)}
+                  sx={{
+                    width: "100%", p: 1.5, border: "1px solid", borderRadius: "12px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", cursor: "pointer", transition: "all 0.2s",
+                    borderColor: isSelected ? "primary.main" : "divider",
+                    backgroundColor: isSelected ? "rgba(212,175,55,0.1)" : "background.card",
+                    color: isSelected ? "primary.main" : "text.secondary",
+                    "&:hover": { borderColor: isSelected ? "primary.main" : "rgba(161,161,170,0.5)", color: "text.primary" },
+                  }}>
+                  <Briefcase size={16} style={{ marginBottom: "6px" }} />
+                  <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "80px", display: "block" }}>{comp.name}</Typography>
+                </ButtonBase>
+              </Grid>
+            );
+          })}
+        </Grid>
+      </Box>
 
       {/* Main split: Filter bar & list results */}
       <Grid container spacing={3}>
         {/* Left column: Search / filters */}
-        <Grid item xs={12} lg={3}>
+        <Grid item xs={12} lg={3} component={motion.div} variants={itemVariants}>
           <Card style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
             <Input id="exp-search" placeholder="Search roles, tags..." icon={Search} value={search} onChange={(e) => setSearch(e.target.value)} />
             {selectedCompany !== "All" && (
@@ -78,7 +99,7 @@ export const InterviewExperiences = () => {
         </Grid>
 
         {/* Right column: Experiences list */}
-        <Grid item xs={12} lg={9}>
+        <Grid item xs={12} lg={9} component={motion.div} variants={itemVariants}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.75 }}>
             {filteredExps.length === 0 ? (
               <Box className="glass" sx={{ p: 6, textAlign: "center", fontSize: "12px", color: "text.secondary", borderRadius: "12px" }}>
@@ -88,12 +109,17 @@ export const InterviewExperiences = () => {
               filteredExps.map((exp) => {
                 const isSaved = bookmarkedExperienceIds.includes(exp.id);
                 return (
-                  <Box key={exp.id} onClick={() => setSelectedExpId(exp.id)}
+                  <Box
+                    component={motion.div}
+                    variants={itemVariants}
+                    key={exp.id}
+                    onClick={() => setSelectedExpId(exp.id)}
                     sx={{
                       p: 2.5, backgroundColor: "rgba(26,26,26,0.45)", border: "1px solid", borderColor: "divider", borderRadius: "12px",
                       display: "flex", gap: 2, textAlign: "left", cursor: "pointer", transition: "all 0.2s",
                       "&:hover": { borderColor: "rgba(161,161,170,0.4)", backgroundColor: "background.card" },
-                    }}>
+                    }}
+                  >
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>

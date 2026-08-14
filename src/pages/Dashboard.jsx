@@ -29,6 +29,25 @@ import ButtonBase from "@mui/material/ButtonBase";
 
 ChartJS.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Title, ChartTooltip, Legend);
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 15, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 100, damping: 15 }
+  }
+};
+
 export const Dashboard = () => {
   const { userProfile, problems, contests, solveProblem } = useApp();
 
@@ -87,6 +106,10 @@ export const Dashboard = () => {
 
   return (
     <Box
+      component={motion.div}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
       sx={{
         maxWidth: "1280px",
         mx: "auto",
@@ -116,7 +139,11 @@ export const Dashboard = () => {
       />
 
       {/* Welcome banner */}
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, gap: 2, position: "relative", zIndex: 10 }}>
+      <Box
+        component={motion.div}
+        variants={itemVariants}
+        sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, gap: 2, position: "relative", zIndex: 10 }}
+      >
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary", display: "flex", alignItems: "center", gap: 1 }}>
             Welcome back, {userProfile.username} <Sparkles size={20} style={{ color: "#FFD700" }} className="animate-pulse" />
@@ -154,7 +181,7 @@ export const Dashboard = () => {
       {/* Grid: Daily Challenge & Progress Overview */}
       <Grid container spacing={3} sx={{ position: "relative", zIndex: 10 }}>
         {/* Daily Challenge Card */}
-        <Grid item xs={12} lg={8}>
+        <Grid item xs={12} lg={8} component={motion.div} variants={itemVariants}>
           <Card hoverGlow glowColor="accent" style={{ padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
             <Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
@@ -196,7 +223,7 @@ export const Dashboard = () => {
         </Grid>
 
         {/* Streak & Achievements Mini Card */}
-        <Grid item xs={12} lg={4}>
+        <Grid item xs={12} lg={4} component={motion.div} variants={itemVariants}>
           <Card style={{ padding: "24px", height: "100%" }}>
             <CardHeader style={{ marginBottom: "12px", paddingBottom: "8px" }}>
               <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em" }}>
@@ -277,7 +304,7 @@ export const Dashboard = () => {
       {/* Grid: Charts & Statistics */}
       <Grid container spacing={3}>
         {/* Solved Problems Breakdown Chart */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={4} component={motion.div} variants={itemVariants}>
           <Card style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
             <Box>
               <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em", display: "block", mb: 2 }}>
@@ -313,7 +340,7 @@ export const Dashboard = () => {
         </Grid>
 
         {/* Rating Progress Line Chart */}
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={8} component={motion.div} variants={itemVariants}>
           <Card style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
             <Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
@@ -337,12 +364,14 @@ export const Dashboard = () => {
       </Grid>
 
       {/* Contribution Calendar Heatmap */}
-      <Heatmap data={userProfile.heatmap} />
+      <Box component={motion.div} variants={itemVariants}>
+        <Heatmap data={userProfile.heatmap} />
+      </Box>
 
       {/* Grid: Continue Solving & Recent Activities */}
       <Grid container spacing={3}>
         {/* Continue Solving List */}
-        <Grid item xs={12} lg={8}>
+        <Grid item xs={12} lg={8} component={motion.div} variants={itemVariants}>
           <Card style={{ padding: "20px", textAlign: "left" }}>
             <CardHeader style={{ marginBottom: "12px", paddingBottom: "8px" }}>
               <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em" }}>
@@ -387,7 +416,7 @@ export const Dashboard = () => {
         </Grid>
 
         {/* Saved Bookmarks Shortcuts */}
-        <Grid item xs={12} lg={4}>
+        <Grid item xs={12} lg={4} component={motion.div} variants={itemVariants}>
           <Card style={{ padding: "20px", textAlign: "left" }}>
             <CardHeader style={{ marginBottom: "12px", paddingBottom: "8px" }}>
               <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", textTransform: "uppercase", letterSpacing: "0.1em" }}>

@@ -14,7 +14,7 @@ import { apiLimiter } from './middlewares/rateLimit.middleware.js';
  * @param {import('express').Router} routes.problemsRouter
  * @param {import('express').Router} routes.companyGuidesRouter
  */
-export const createApp = ({ authRouter, userRouter, problemsRouter, companyGuidesRouter }) => {
+export const createApp = ({ authRouter, userRouter, problemsRouter, companyGuidesRouter, blogRouter, tutorialRouter }) => {
   const app = express();
 
   // Mount basic security headers with Referrer-Policy configured
@@ -48,6 +48,8 @@ export const createApp = ({ authRouter, userRouter, problemsRouter, companyGuide
   app.use(`${prefix}/users`, userRouter);
   app.use(`${prefix}/problems`, problemsRouter);
   app.use(`${prefix}/company-guides`, companyGuidesRouter);
+  app.use(`${prefix}/blogs`, blogRouter);
+  app.use(`${prefix}/tutorials`, tutorialRouter);
 
   // Catch-all 404 Route
   app.use((req, res, next) => {

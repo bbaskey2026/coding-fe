@@ -8,11 +8,11 @@ export const Heatmap = ({ data = [], ...props }) => {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   const getColorStyles = (count) => {
-    if (count === 0) return { backgroundColor: "#18181b", borderColor: "#09090b" };
-    if (count <= 2) return { backgroundColor: "rgba(212, 175, 55, 0.2)", borderColor: "rgba(212, 175, 55, 0.3)" };
-    if (count <= 4) return { backgroundColor: "rgba(212, 175, 55, 0.45)", borderColor: "rgba(212, 175, 55, 0.55)" };
-    if (count <= 6) return { backgroundColor: "rgba(212, 175, 55, 0.7)", borderColor: "rgba(212, 175, 55, 0.8)" };
-    return { backgroundColor: "#D4AF37", borderColor: "#B8860B" };
+    if (count === 0) return { backgroundColor: "rgba(128, 128, 128, 0.05)", borderColor: "rgba(128, 128, 128, 0.1)" };
+    if (count <= 2) return { backgroundColor: "rgba(128, 128, 128, 0.25)", borderColor: "rgba(128, 128, 128, 0.35)" };
+    if (count <= 4) return { backgroundColor: "rgba(128, 128, 128, 0.5)", borderColor: "rgba(128, 128, 128, 0.6)" };
+    if (count <= 6) return { backgroundColor: "rgba(128, 128, 128, 0.75)", borderColor: "rgba(128, 128, 128, 0.85)" };
+    return { backgroundColor: "var(--mui-palette-text-primary)", borderColor: "var(--mui-palette-divider)" };
   };
 
   // Group 365 days into columns of 7
@@ -45,11 +45,11 @@ export const Heatmap = ({ data = [], ...props }) => {
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, fontSize: "10px", color: "text.secondary" }}>
           <span>Less</span>
-          <Box sx={{ width: 10, height: 10, borderRadius: "2px", backgroundColor: "#18181b", border: "1px solid #09090b" }} />
-          <Box sx={{ width: 10, height: 10, borderRadius: "2px", backgroundColor: "rgba(212, 175, 55, 0.2)" }} />
-          <Box sx={{ width: 10, height: 10, borderRadius: "2px", backgroundColor: "rgba(212, 175, 55, 0.45)" }} />
-          <Box sx={{ width: 10, height: 10, borderRadius: "2px", backgroundColor: "rgba(212, 175, 55, 0.7)" }} />
-          <Box sx={{ width: 10, height: 10, borderRadius: "2px", backgroundColor: "#D4AF37" }} />
+          <Box sx={{ width: 10, height: 10, borderRadius: "2px", backgroundColor: "rgba(128, 128, 128, 0.05)", border: "1px solid rgba(128, 128, 128, 0.1)" }} />
+          <Box sx={{ width: 10, height: 10, borderRadius: "2px", backgroundColor: "rgba(128, 128, 128, 0.25)", border: "1px solid rgba(128, 128, 128, 0.35)" }} />
+          <Box sx={{ width: 10, height: 10, borderRadius: "2px", backgroundColor: "rgba(128, 128, 128, 0.5)", border: "1px solid rgba(128, 128, 128, 0.6)" }} />
+          <Box sx={{ width: 10, height: 10, borderRadius: "2px", backgroundColor: "rgba(128, 128, 128, 0.75)", border: "1px solid rgba(128, 128, 128, 0.85)" }} />
+          <Box sx={{ width: 10, height: 10, borderRadius: "2px", backgroundColor: "var(--mui-palette-text-primary)", border: "1px solid var(--mui-palette-divider)" }} />
           <span>More</span>
         </Box>
       </Box>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Award, ShieldCheck, Download, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
 import { useApp } from "../context/AppContext";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -9,6 +10,19 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import ButtonBase from "@mui/material/ButtonBase";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+};
 
 export const Certificates = () => {
   const { studyPlans, userProfile, addNotification } = useApp();
@@ -25,8 +39,14 @@ export const Certificates = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "1024px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}>
-      <Box>
+    <Box
+      component={motion.div}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      sx={{ maxWidth: "1024px", mx: "auto", px: { xs: 2, md: 3 }, pt: 12, pb: 6, display: "flex", flexDirection: "column", gap: 3, textAlign: "left" }}
+    >
+      <Box component={motion.div} variants={itemVariants}>
         <Typography variant="h5" sx={{ fontWeight: 800, color: "text.primary" }}>Accomplishment Certificates</Typography>
         <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
           Claim shareable, cryptographically signed verification credentials for completed plans.
@@ -35,7 +55,7 @@ export const Certificates = () => {
 
       <Grid container spacing={3} alignItems="stretch">
         {/* Left Side: selection catalog */}
-        <Grid item xs={12} lg={3}>
+        <Grid item xs={12} lg={3} component={motion.div} variants={itemVariants}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
             <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", textTransform: "uppercase", display: "block", fontSize: "10px" }}>
               Select Completed Plan
@@ -63,9 +83,15 @@ export const Certificates = () => {
         </Grid>
 
         {/* Right Side: High Fidelity Certificate View */}
-        <Grid item xs={12} lg={9}>
+        <Grid item xs={12} lg={9} component={motion.div} variants={itemVariants}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <Card style={{ padding: "4px", backgroundColor: "#09090b", border: "1px solid #3F3F46", borderRadius: "16px", position: "relative", boxShadow: "0 25px 50px rgba(0,0,0,0.8)", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <Card
+              component={motion.div}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.15, type: "spring", stiffness: 80 }}
+              style={{ padding: "4px", backgroundColor: "#09090b", border: "1px solid #3F3F46", borderRadius: "16px", position: "relative", boxShadow: "0 25px 50px rgba(0,0,0,0.8)", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center" }}
+            >
               {/* Certificate frame with border */}
               <Box sx={{
                 border: "6px double rgba(180,120,30,0.6)", borderRadius: "12px",

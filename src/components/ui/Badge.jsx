@@ -1,5 +1,6 @@
 import React from "react";
 import Box from "@mui/material/Box";
+import { motion } from "framer-motion";
 
 export const Badge = ({
   children,
@@ -10,34 +11,14 @@ export const Badge = ({
   const getColors = () => {
     switch (variant) {
       case "primary":
-        return {
-          backgroundColor: "rgba(212, 175, 55, 0.1)",
-          border: "1px solid rgba(212, 175, 55, 0.2)",
-          color: "primary.main",
-        };
       case "success":
-        return {
-          backgroundColor: "rgba(212, 175, 55, 0.1)",
-          border: "1px solid rgba(212, 175, 55, 0.2)",
-          color: "primary.main",
-        };
       case "warning":
-        return {
-          backgroundColor: "rgba(255, 215, 0, 0.1)",
-          border: "1px solid rgba(255, 215, 0, 0.2)",
-          color: "#FFD700",
-        };
       case "danger":
-        return {
-          backgroundColor: "rgba(255, 255, 255, 0.1)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
-          color: "#FFFFFF",
-        };
       case "info":
         return {
-          backgroundColor: "rgba(255, 215, 0, 0.08)",
-          border: "1px solid rgba(255, 215, 0, 0.15)",
-          color: "#FFD700",
+          backgroundColor: "rgba(212, 175, 55, 0.08)",
+          border: "1px solid rgba(212, 175, 55, 0.25)",
+          color: "primary.main",
         };
       case "outline":
         return {
@@ -60,7 +41,8 @@ export const Badge = ({
 
   return (
     <Box
-      component="span"
+      component={motion.span}
+      whileHover={{ scale: 1.05 }}
       sx={{
         display: "inline-flex",
         alignItems: "center",
@@ -72,6 +54,7 @@ export const Badge = ({
         py: size === "sm" ? 0.25 : 0.5,
         fontSize: size === "sm" ? "10px" : "12px",
         lineHeight: 1,
+        cursor: "default",
         ...colors,
       }}
       {...props}

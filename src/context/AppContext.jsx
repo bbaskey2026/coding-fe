@@ -9,6 +9,17 @@ const AppContext = createContext();
 export const AppProvider = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const [data, setData] = useState(() => generateMockData());
+  const [themeMode, setThemeMode] = useState(() => {
+    return localStorage.getItem("themeMode") || "dark";
+  });
+
+  const toggleTheme = () => {
+    setThemeMode((prev) => {
+      const next = prev === "light" ? "dark" : "light";
+      localStorage.setItem("themeMode", next);
+      return next;
+    });
+  };
   const [userProfile, setUserProfile] = useState(data.userProfile);
   const [problems, setProblems] = useState([]);
   const [companyGuides, setCompanyGuides] = useState([]);
@@ -331,7 +342,10 @@ export const AppProvider = ({ children }) => {
       addProblem,
       addNotification,
       markAllNotificationsRead,
-      triggerConfettiEffect
+      triggerConfettiEffect,
+      themeMode,
+      setThemeMode,
+      toggleTheme
     }}>
       {children}
     </AppContext.Provider>

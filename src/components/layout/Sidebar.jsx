@@ -15,7 +15,9 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Newspaper,
+  GraduationCap
 } from "lucide-react";
 
 // MUI Imports
@@ -32,10 +34,12 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
     { name: "Dashboard", path: "/dashbaord", icon: LayoutDashboard },
     { name: "Problems", path: "/problems", icon: Code2 },
     { name: "Company Guides", path: "/company-guides", icon: BookOpen },
+    { name: "Tutorials", path: "/tutorials", icon: GraduationCap },
     { name: "Study Plans", path: "/study-plans", icon: Map },
     { name: "Contests", path: "/contests", icon: Trophy },
     { name: "Leaderboard", path: "/leaderboard", icon: BarChart3 },
     { name: "Forum", path: "/forum", icon: MessageSquare },
+    { name: "Blogs", path: "/blogs", icon: Newspaper },
     { name: "Interview Exp", path: "/interviews", icon: Briefcase },
     { name: "Mock Interview", path: "/mock-interview", icon: UserCheck },
     { name: "Notes Workspace", path: "/notes", icon: FileText },
@@ -101,6 +105,9 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
               style={{ textDecoration: "none" }}
             >
               <Box
+                component={motion.div}
+                whileHover={{ x: 4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -111,18 +118,18 @@ export const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                   fontSize: "12px",
                   fontWeight: "bold",
                   userSelect: "none",
-                  transition: "all 0.2s",
-                  backgroundColor: isActive ? "rgba(212, 175, 55, 0.1)" : "transparent",
-                  border: "1px solid",
-                  borderColor: isActive ? "rgba(212, 175, 55, 0.2)" : "transparent",
+                  backgroundColor: isActive ? "rgba(128, 128, 128, 0.05)" : "transparent",
+                  border: "1.5px solid",
+                  borderColor: isActive ? "primary.main" : "transparent",
                   color: isActive ? "primary.main" : "text.secondary",
                   "&:hover": {
                     color: isActive ? "primary.main" : "text.primary",
-                    backgroundColor: isActive ? "rgba(212, 175, 55, 0.1)" : "background.card",
+                    backgroundColor: isActive ? "rgba(128, 128, 128, 0.08)" : "background.card",
                   },
+                  cursor: "pointer",
                 }}
               >
-                <Icon size={16} style={{ color: isActive ? "#D4AF37" : "#CFCFCF" }} />
+                <Icon size={16} style={{ color: "currentColor" }} />
                 {!isCollapsed && (
                   <motion.span
                     initial={{ opacity: 0, x: -5 }}

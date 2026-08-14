@@ -13,17 +13,19 @@ import Button from "@mui/material/Button";
 export const NotificationCenter = () => {
   const { notifications, showLevelUp, setShowLevelUp, triggerConfettiEffect } = useApp();
   const [activeToasts, setActiveToasts] = useState([]);
+  const processedIds = React.useRef(new Set());
 
   // Sync with AppContext notifications to show new items as toasts
   useEffect(() => {
     if (notifications.length > 0) {
       const latest = notifications[0];
-      // Check if toast already exists to avoid duplication
-      if (!activeToasts.some((t) => t.id === latest.id)) {
+      // Check if toast already exists in ref to avoid StrictMode double-addition
+      if (!processedIds.current.has(latest.id)) {
+        processedIds.current.add(latest.id);
         setActiveToasts((prev) => [latest, ...prev.slice(0, 3)]); // Limit to max 4 concurrent toasts
       }
     }
-  }, [notifications, activeToasts]);
+  }, [notifications]);
 
   // Remove toast after delay
   const removeToast = (id) => {
@@ -33,13 +35,13 @@ export const NotificationCenter = () => {
   const getIcon = (type) => {
     switch (type) {
       case "success":
-        return <CheckCircle size={16} style={{ color: "#D4AF37" }} />;
+        return <CheckCircle size={16} style={{ color: "var(--mui-palette-text-primary)" }} />;
       case "warning":
-        return <AlertTriangle size={16} style={{ color: "#FFD700" }} />;
+        return <AlertTriangle size={16} style={{ color: "var(--mui-palette-text-primary)" }} />;
       case "achievement":
-        return <Trophy size={16} className="animate-bounce" style={{ color: "#F59E0B" }} />;
+        return <Trophy size={16} className="animate-bounce" style={{ color: "var(--mui-palette-text-primary)" }} />;
       default:
-        return <Info size={16} style={{ color: "#D4AF37" }} />;
+        return <Info size={16} style={{ color: "var(--mui-palette-text-primary)" }} />;
     }
   };
 
@@ -141,7 +143,7 @@ export const NotificationCenter = () => {
             flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
-            boxShadow: "0 0 50px rgba(212, 175, 55, 0.25)",
+            boxShadow: "0 0 50px rgba(128, 128, 128, 0.25)",
             maxWidth: 360,
           },
         }}
@@ -151,7 +153,7 @@ export const NotificationCenter = () => {
             width: 80,
             height: 80,
             borderRadius: "50%",
-            background: "linear-gradient(45deg, #D4AF37, #FFD700)",
+            background: "linear-gradient(45deg, var(--mui-palette-primary-main), var(--mui-palette-divider))",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -159,7 +161,7 @@ export const NotificationCenter = () => {
             mb: 3,
           }}
         >
-          <Trophy size={40} className="animate-pulse" style={{ color: "#000000" }} />
+          <Trophy size={40} className="animate-pulse" style={{ color: "var(--mui-palette-background-default)" }} />
         </Box>
 
         <Typography

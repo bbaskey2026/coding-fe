@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import logger from './utils/logger.js';
 import pool, { checkConnection } from './config/db.js';
+import mongoose from 'mongoose';
+import { connectMongo } from './config/mongo.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +32,17 @@ const userRepository = new UserRepository(pool);
 const problemsRepository = new ProblemsRepository(pool);
 const companyGuidesRepository = new CompanyGuidesRepository(pool);
 
+// Blog Repository
+import { BlogRepository } from './repositories/blog.repository.js';
+import BlogPost from './models/BlogPost.js';
+import Comment from './models/Comment.js';
+const blogRepository = new BlogRepository(BlogPost, Comment);
+
+// Tutorial Repository
+import { TutorialRepository } from './repositories/tutorial.repository.js';
+import Tutorial from './models/Tutorial.js';
+const tutorialRepository = new TutorialRepository(Tutorial);
+
 // 3. Services
 import { TokenService } from './services/token.service.js';
 import { EmailService } from './services/email.service.js';
@@ -54,6 +67,14 @@ const authService = new AuthService(userRepository, tokenService, emailService, 
 const problemsService = new ProblemsService(problemsRepository);
 const companyGuidesService = new CompanyGuidesService(companyGuidesRepository);
 
+// Blog Service
+import { BlogService } from './services/blog.service.js';
+const blogService = new BlogService(blogRepository);
+
+// Tutorial Service
+import { TutorialService } from './services/tutorial.service.js';
+const tutorialService = new TutorialService(tutorialRepository);
+
 // 4. Controllers
 import { AuthController } from './controllers/auth.controller.js';
 import { UserController } from './controllers/user.controller.js';
@@ -64,6 +85,14 @@ const authController = new AuthController(authService, tokenService);
 const userController = new UserController(userService);
 const problemsController = new ProblemsController(problemsService);
 const companyGuidesController = new CompanyGuidesController(companyGuidesService);
+
+// Blog Controller
+import { BlogController } from './controllers/blog.controller.js';
+const blogController = new BlogController(blogService);
+
+// Tutorial Controller
+import { TutorialController } from './controllers/tutorial.controller.js';
+const tutorialController = new TutorialController(tutorialService);
 
 // 5. Middlewares
 import { createAuthMiddleware } from './middlewares/auth.middleware.js';
@@ -84,9 +113,17 @@ const userRouter = createUserRouter(userController, authMiddleware, uploadMiddle
 const problemsRouter = createProblemsRouter(problemsController, authMiddleware);
 const companyGuidesRouter = createCompanyGuidesRouter(companyGuidesController, authMiddleware);
 
+// Blog Router
+import { createBlogRouter } from './routes/blog.routes.js';
+const blogRouter = createBlogRouter(blogController, authMiddleware, tokenService, userRepository);
+
+// Tutorial Router
+import { createTutorialRouter } from './routes/tutorial.routes.js';
+const tutorialRouter = createTutorialRouter(tutorialController, authMiddleware);
+
 // 7. Express App Assembly
 import { createApp } from './app.js';
-const app = createApp({ authRouter, userRouter, problemsRouter, companyGuidesRouter });
+const app = createApp({ authRouter, userRouter, problemsRouter, companyGuidesRouter, blogRouter, tutorialRouter });
 
 // 8. Server Startup Lifecycle
 const port = parseInt(process.env.PORT || '5000', 10);
@@ -102,6 +139,12 @@ const startServer = async () => {
     process.exit(1);
   }
 
+  // Test connection to MongoDB
+  const mongoConnected = await connectMongo();
+  if (!mongoConnected) {
+    logger.warn('WARNING: MongoDB connection failed. Blog services will be disabled, but server startup will proceed.');
+  }
+
   server.listen(port, () => {
     logger.info(`Server is running in ${process.env.NODE_ENV} mode on port ${port}`);
   });
@@ -115,6 +158,8 @@ const shutdown = (signal) => {
     try {
       await pool.end();
       logger.info('PostgreSQL pool connection closed.');
+      await mongoose.connection.close();
+      logger.info('MongoDB connection closed.');
       process.exit(0);
     } catch (err) {
       logger.error('Error closing database pool connection', err);

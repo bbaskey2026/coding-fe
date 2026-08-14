@@ -37,7 +37,7 @@ export const Input = ({
           transition: "border-color 0.2s",
           "&:focus-within": {
             borderColor: error ? "#D32F2F" : "primary.main",
-            boxShadow: `0 0 0 1px ${error ? "#D32F2F" : "#D4AF37"}`,
+            boxShadow: `0 0 0 1px ${error ? "#D32F2F" : "var(--mui-palette-primary-main)"}`,
           },
         }}
       >
@@ -112,7 +112,7 @@ export const TextArea = ({
           transition: "border-color 0.2s",
           "&:focus-within": {
             borderColor: error ? "#D32F2F" : "primary.main",
-            boxShadow: `0 0 0 1px ${error ? "#D32F2F" : "#D4AF37"}`,
+            boxShadow: `0 0 0 1px ${error ? "#D32F2F" : "var(--mui-palette-primary-main)"}`,
           },
         }}
         {...props}

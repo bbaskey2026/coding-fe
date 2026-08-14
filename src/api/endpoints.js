@@ -33,9 +33,16 @@ export const ProblemsEndpoints = {
   run: (id) => api(`/problems/${id}/run`),
 };
 
+// Company Guides endpoints
+export const CompanyGuidesEndpoints = {
+  list: () => api("/company-guides"),
+  getById: (id) => api(`/company-guides/${id}`),
+};
+
 // Export a map for easy lookup if needed
 export const EndpointsMap = {
   auth: AuthEndpoints,
   user: UserEndpoints,
   problems: ProblemsEndpoints,
+  companyGuides: CompanyGuidesEndpoints,
 };

@@ -16,38 +16,10 @@ export const ProgressBar = ({
   const percentage = Math.min(100, Math.max(0, (value / max) * 100));
 
   const getColors = () => {
-    switch (color) {
-      case "primary":
-        return {
-          barColor: "primary.main",
-          glow: "0 0 10px rgba(212, 175, 55, 0.4)",
-        };
-      case "accent":
-        return {
-          barColor: "#FFD700",
-          glow: "0 0 10px rgba(255, 215, 0, 0.4)",
-        };
-      case "success":
-        return {
-          barColor: "primary.main",
-          glow: "0 0 10px rgba(212, 175, 55, 0.4)",
-        };
-      case "danger":
-        return {
-          barColor: "#D32F2F",
-          glow: "0 0 10px rgba(211, 47, 47, 0.4)",
-        };
-      case "warning":
-        return {
-          barColor: "#FFD700",
-          glow: "0 0 10px rgba(255, 215, 0, 0.4)",
-        };
-      default:
-        return {
-          barColor: "primary.main",
-          glow: "none",
-        };
-    }
+    return {
+      barColor: "primary.main",
+      glow: "none",
+    };
   };
 
   const colors = getColors();
@@ -85,7 +57,7 @@ export const ProgressRing = ({
   max = 100,
   size = 60,
   strokeWidth = 5,
-  color = "#D4AF37", // Default to Gold color instead of Indigo
+  color = "primary.main", // Default to theme primary main
   label = "",
   ...props
 }) => {

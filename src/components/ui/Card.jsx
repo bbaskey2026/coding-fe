@@ -1,6 +1,7 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import ButtonBase from "@mui/material/ButtonBase";
+import { motion } from "framer-motion";
 
 export const Card = ({
   children,
@@ -11,52 +12,17 @@ export const Card = ({
 }) => {
   const getGlowStyles = () => {
     if (!hoverGlow) return {};
-    switch (glowColor) {
-      case "primary":
-        return {
-          "&:hover": {
-            boxShadow: "0 0 25px rgba(212, 175, 55, 0.15)",
-            borderColor: "rgba(212, 175, 55, 0.3)",
-          },
-        };
-      case "accent":
-        return {
-          "&:hover": {
-            boxShadow: "0 0 25px rgba(255, 215, 0, 0.15)",
-            borderColor: "rgba(255, 215, 0, 0.3)",
-          },
-        };
-      case "success":
-        return {
-          "&:hover": {
-            boxShadow: "0 0 25px rgba(212, 175, 55, 0.15)",
-            borderColor: "rgba(212, 175, 55, 0.4)",
-          },
-        };
-      case "danger":
-        return {
-          "&:hover": {
-            boxShadow: "0 0 25px rgba(255, 255, 255, 0.15)",
-            borderColor: "rgba(255, 255, 255, 0.4)",
-          },
-        };
-      case "warning":
-        return {
-          "&:hover": {
-            boxShadow: "0 0 25px rgba(255, 215, 0, 0.15)",
-            borderColor: "rgba(255, 215, 0, 0.4)",
-          },
-        };
-      default:
-        return {};
-    }
+    return {
+      "&:hover": {
+        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
+        borderColor: "text.primary",
+      },
+    };
   };
 
   const cardStyles = {
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    backdropFilter: "blur(10px)",
-    WebkitBackdropFilter: "blur(10px)",
-    boxShadow: "0 8px 32px 0 rgba(255, 255, 255, 0.15)",
+    backgroundColor: "background.paper",
+    boxShadow: "none",
     p: 3,
     borderRadius: "12px",
     display: "flex",
@@ -64,16 +30,19 @@ export const Card = ({
     justifyContent: "space-between",
     overflow: "hidden",
     textAlign: "left",
-    border: "1px solid",
+    border: "1.5px solid",
     borderColor: "divider",
-    transition: "all 0.3s ease",
+    transition: "box-shadow 0.25s, border-color 0.25s, transform 0.25s",
     ...getGlowStyles(),
   };
 
   if (onClick) {
+    const MotionButtonBase = motion(ButtonBase);
     return (
-      <ButtonBase
+      <MotionButtonBase
         onClick={onClick}
+        whileHover={{ y: -4, scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
         sx={{
           ...cardStyles,
           width: "100%",
@@ -87,12 +56,17 @@ export const Card = ({
         <Box sx={{ width: "100%", display: "flex", flexDirection: "column", flexGrow: 1 }}>
           {children}
         </Box>
-      </ButtonBase>
+      </MotionButtonBase>
     );
   }
 
   return (
-    <Box sx={cardStyles} {...props}>
+    <Box
+      component={motion.div}
+      whileHover={hoverGlow ? { y: -4, scale: 1.01 } : undefined}
+      sx={cardStyles}
+      {...props}
+    >
       {children}
     </Box>
   );

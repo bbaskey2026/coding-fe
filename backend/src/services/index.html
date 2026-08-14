@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Problem Catalog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=JetBrains+Mono:wght@400;500;600;700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#131110;
+    --ink-soft:#1B1815;
+    --ink-line: rgba(239,231,214,0.09);
+    --parchment:#EFE7D6;
+    --parchment-hi:#F8F2E5;
+    --gold:#C9A227;
+    --gold-soft:#E4C664;
+    --muted:#948B78;
+    --muted-dark:#8B8371;
+    --easy:#3FB08B;
+    --medium:#E4A24B;
+    --hard:#D65C51;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 12% -10%, rgba(201,162,39,0.09), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 95% 0%, rgba(214,92,81,0.06), transparent 55%),
+      var(--ink);
+    color:var(--parchment);
+    font-family:'Karla', sans-serif;
+    min-height:100vh;
+    padding: 44px 6vw 80px;
+  }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--gold-soft);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before{ content:""; width:22px; height:1px; background:var(--gold-soft); display:inline-block; }
+  h1.title{
+    font-family:'Fraunces', serif; font-weight:600; font-style:italic;
+    font-size:clamp(34px, 4.6vw, 54px); line-height:1.02;
+    margin:0 0 10px; color:var(--parchment-hi); letter-spacing:-0.01em;
+  }
+  p.subtitle{ font-size:15.5px; color:var(--muted); max-width:520px; line-height:1.55; margin:0 0 34px; }
+
+  /* ---------- Filter bar ---------- */
+  .filterbar{
+    background:var(--ink-soft); border:1px solid var(--ink-line); border-radius:14px;
+    padding:20px 22px; margin-bottom:22px;
+  }
+  .filter-row1{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+  .search-wrap{ position:relative; flex:1 1 260px; }
+  .search-wrap input{
+    width:100%; background:var(--ink); border:1px solid var(--ink-line); border-radius:9px;
+    padding:11px 14px 11px 38px; color:var(--parchment-hi);
+    font-family:'JetBrains Mono', monospace; font-size:13px; outline:none;
+    transition:border-color .15s ease;
+  }
+  .search-wrap input::placeholder{ color:var(--muted-dark); }
+  .search-wrap input:focus{ border-color:var(--gold); }
+  .search-wrap svg{ position:absolute; left:13px; top:50%; transform:translateY(-50%); width:15px; height:15px; stroke:var(--muted-dark); }
+  .selectgroup{ display:flex; flex-direction:column; gap:5px; }
+  .selectgroup label{ font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted-dark); }
+  .selectgroup select{
+    background:var(--ink); border:1px solid var(--ink-line); border-radius:9px;
+    color:var(--parchment-hi); padding:9px 34px 9px 12px; font-size:13.5px;
+    font-family:'Karla',sans-serif; font-weight:600; appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1L5 5L9 1' stroke='%23948B78' stroke-width='1.4' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat:no-repeat; background-position:right 12px center;
+    cursor:pointer; min-width:140px;
+  }
+  .clearbtn{
+    background:none; border:none; color:var(--gold-soft);
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; font-weight:600;
+    display:flex; align-items:center; gap:6px; cursor:pointer; padding:9px 4px; letter-spacing:0.03em;
+  }
+  .clearbtn svg{ width:13px; height:13px; }
+  .clearbtn:hover{ color:var(--parchment-hi); }
+
+  .filter-row2{ display:flex; gap:34px; flex-wrap:wrap; margin-top:18px; padding-top:18px; border-top:1px solid var(--ink-line); }
+  .pillgroup{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .pillgroup .glabel{ font-family:'Fraunces', serif; font-weight:600; font-size:13px; color:var(--muted); margin-right:2px; }
+  .pill{
+    font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:600;
+    padding:7px 15px; border-radius:100px; border:1px solid transparent;
+    background:rgba(239,231,214,0.06); color:var(--muted); cursor:pointer; transition:all .15s ease;
+  }
+  .pill:hover{ background:rgba(239,231,214,0.11); color:var(--parchment-hi); }
+  .pill.active{ background:rgba(201,162,39,0.14); border-color:var(--gold); color:var(--gold-soft); }
+  .pill.active.solved{ border-color:var(--easy); color:var(--easy); background:rgba(63,176,139,0.14); }
+  .pill.active.attempted{ border-color:var(--medium); color:var(--medium); background:rgba(228,162,75,0.14); }
+  .pill.active.unsolved{ border-color:var(--muted); color:var(--parchment-hi); }
+
+  .deck-count{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--muted-dark);
+    letter-spacing:0.05em; margin-bottom:14px;
+  }
+  .deck-count b{ color:var(--gold-soft); }
+
+  /* ---------- The single list card ---------- */
+  .listcard{
+    background:linear-gradient(160deg, var(--ink-soft), #100E0C 90%);
+    border:1px solid var(--ink-line);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 24px 50px -22px rgba(0,0,0,0.6);
+  }
+  .listhead{
+    display:grid;
+    grid-template-columns: 46px 54px minmax(180px,2fr) minmax(160px,1.6fr) 100px 96px minmax(140px,1.2fr);
+    gap:14px; align-items:center;
+    padding:15px 22px;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.13em; text-transform:uppercase;
+    color:var(--muted-dark);
+    border-bottom:1px solid var(--ink-line);
+  }
+  .listhead span:nth-child(5),
+  .listhead span:nth-child(6){ text-align:right; }
+
+  .row{
+    display:grid;
+    grid-template-columns: 46px 54px minmax(180px,2fr) minmax(160px,1.6fr) 100px 96px minmax(140px,1.2fr);
+    gap:14px; align-items:center;
+    padding:16px 22px;
+    border-bottom:1px solid var(--ink-line);
+    cursor:pointer;
+    transition:background .15s ease;
+    position:relative;
+  }
+  .row:last-child{ border-bottom:none; }
+  .row:hover{ background:rgba(201,162,39,0.05); }
+  .row::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:transparent; transition:background .15s ease;
+  }
+  .row.diff-easy::before{ background:var(--easy); opacity:0; }
+  .row.diff-medium::before{ background:var(--medium); opacity:0; }
+  .row.diff-hard::before{ background:var(--hard); opacity:0; }
+  .row:hover::before{ opacity:1; }
+
+  .seal{
+    width:26px; height:26px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:1.6px solid var(--muted-dark);
+  }
+  .seal svg{ width:13px; height:13px; }
+  .row.status-solved .seal{ border-color:var(--easy); background:rgba(63,176,139,0.12); color:var(--easy); }
+  .row.status-attempted .seal{ border-color:var(--medium); background:rgba(228,162,75,0.12); color:var(--medium); }
+  .row.status-unsolved .seal{ border-style:dashed; color:var(--muted-dark); opacity:0.6; }
+
+  .idnum{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--muted-dark); }
+
+  .titlecell .p-title{
+    font-family:'Fraunces', serif; font-weight:600; font-size:16.5px; color:var(--parchment-hi);
+    margin:0 0 3px; letter-spacing:-0.005em;
+  }
+  .titlecell .p-sub{ font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--muted-dark); }
+
+  .tags{ display:flex; flex-wrap:wrap; gap:6px; }
+  .tag{
+    font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:600;
+    padding:4px 9px; border-radius:100px; background:rgba(239,231,214,0.06);
+    color:var(--muted); border:1px solid var(--ink-line);
+  }
+
+  .acceptcell{ text-align:right; }
+  .acceptcell b{ font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--parchment-hi); }
+  .accept-track{ width:64px; height:4px; border-radius:4px; background:rgba(239,231,214,0.08); margin:6px 0 0 auto; overflow:hidden; }
+  .accept-fill{ height:100%; border-radius:4px; }
+  .diff-easy .accept-fill{ background:var(--easy); }
+  .diff-medium .accept-fill{ background:var(--medium); }
+  .diff-hard .accept-fill{ background:var(--hard); }
+
+  .diffcell{ text-align:right; font-family:'JetBrains Mono', monospace; font-weight:700; font-size:12px; letter-spacing:0.04em; }
+  .diff-easy .diffcell{ color:var(--easy); }
+  .diff-medium .diffcell{ color:var(--medium); }
+  .diff-hard .diffcell{ color:var(--hard); }
+
+  .companies{ font-size:12.5px; color:var(--muted); line-height:1.4; }
+
+  /* expandable detail */
+  .detail{
+    grid-column: 1 / -1;
+    max-height:0; overflow:hidden;
+    transition:max-height .28s ease, padding .28s ease;
+    background:rgba(0,0,0,0.18);
+    border-radius:10px;
+  }
+  .row.open .detail{ max-height:120px; padding:14px 18px; margin-top:12px; }
+  .detail p{ margin:0 0 10px; font-size:13px; line-height:1.55; color:var(--muted); max-width:640px; }
+  .detail .open-btn{
+    font-family:'JetBrains Mono', monospace; font-weight:700; font-size:11.5px;
+    background:var(--gold); color:var(--ink); border:none; border-radius:8px;
+    padding:9px 16px; letter-spacing:0.03em; cursor:pointer;
+    display:inline-flex; align-items:center; gap:7px;
+  }
+  .detail .open-btn:hover{ background:var(--gold-soft); }
+  .detail .open-btn svg{ width:12px; height:12px; }
+
+  .empty-state{ text-align:center; padding:70px 20px; color:var(--muted-dark); font-family:'JetBrains Mono', monospace; font-size:13px; }
+
+  @media (max-width:920px){
+    .listhead{ display:none; }
+    .row{
+      grid-template-columns: 1fr;
+      row-gap:8px;
+      padding:16px 18px;
+    }
+    .row > *{ grid-column:1; }
+    .acceptcell, .diffcell{ text-align:left; }
+    .accept-track{ margin-left:0; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="eyebrow">Challenge Registry · 214 problems</div>
+  <h1 class="title">Problem <em>Catalog</em></h1>
+  <p class="subtitle">Select challenges matching difficulty tiers and target companies. Click any row to expand its brief.</p>
+
+  <div class="filterbar">
+    <div class="filter-row1">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="searchInput" type="text" placeholder="Search problem title or ID…">
+      </div>
+      <div class="selectgroup">
+        <label>Topic tag</label>
+        <select id="topicSelect"><option>All</option></select>
+      </div>
+      <div class="selectgroup">
+        <label>Company</label>
+        <select id="companySelect"><option>All</option></select>
+      </div>
+      <button class="clearbtn" id="clearBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-3-6.7"/><path d="M21 3v6h-6"/></svg>
+        Clear
+      </button>
+    </div>
+    <div class="filter-row2">
+      <div class="pillgroup" id="difficultyGroup">
+        <span class="glabel">Difficulty</span>
+        <button class="pill active" data-val="All">All</button>
+        <button class="pill" data-val="Easy">Easy</button>
+        <button class="pill" data-val="Medium">Medium</button>
+        <button class="pill" data-val="Hard">Hard</button>
+      </div>
+      <div class="pillgroup" id="statusGroup">
+        <span class="glabel">Status</span>
+        <button class="pill active" data-val="All">All</button>
+        <button class="pill" data-val="solved">Solved</button>
+        <button class="pill" data-val="attempted">Attempted</button>
+        <button class="pill" data-val="unsolved">Unsolved</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="deck-count">Showing <b id="countNum">0</b> problems</div>
+
+  <div class="listcard">
+    <div class="listhead">
+      <span>Status</span><span>ID</span><span>Title</span><span>Topic tags</span><span>Acceptance</span><span>Difficulty</span><span>Companies</span>
+    </div>
+    <div id="rows"></div>
+  </div>
+
+<script>
+const problems = [
+  { id:1, title:"Two Sum", tags:["Arrays","Hash Table"], acceptance:49.2, difficulty:"Easy", status:"solved",
+    companies:["Google","Amazon","Meta","Apple"],
+    blurb:"Given an array of integers, return the indices of the two numbers that add up to a target. One pass, one hash map — no brute force." },
+  { id:2, title:"Valid Parentheses", tags:["Strings","Stack"], acceptance:41.0, difficulty:"Easy", status:"solved",
+    companies:["Microsoft","Google","Bloomberg"],
+    blurb:"Given a string of brackets, determine if every opening bracket is closed in the correct order. A stack does the heavy lifting." },
+  { id:3, title:"Reverse String", tags:["Strings","Two Pointers"], acceptance:75.4, difficulty:"Easy", status:"attempted",
+    companies:["Apple","Amazon","Adobe"],
+    blurb:"Reverse a character array in place. Two pointers walk inward from both ends until they meet." },
+  { id:4, title:"Binary Search", tags:["Arrays","Binary Search"], acceptance:56.2, difficulty:"Easy", status:"unsolved",
+    companies:["Google","Microsoft","Uber"],
+    blurb:"Find a target's index in a sorted array in O(log n). Halve the search space on every comparison." },
+  { id:5, title:"Container With Most Water", tags:["Arrays","Two Pointers"], acceptance:54.1, difficulty:"Medium", status:"unsolved",
+    companies:["Google","Meta","Amazon"],
+    blurb:"Pick two lines that, with the x-axis, form the container holding the most water. Greedy pointer movement beats brute force." },
+  { id:6, title:"Longest Substring Without Repeating Characters", tags:["Strings","Sliding Window"], acceptance:34.8, difficulty:"Medium", status:"unsolved",
+    companies:["Amazon","Bloomberg","Meta"],
+    blurb:"Find the length of the longest run of unique characters. A sliding window with a seen-set tracks the frontier." },
+  { id:7, title:"Merge Intervals", tags:["Arrays","Sorting"], acceptance:47.3, difficulty:"Medium", status:"attempted",
+    companies:["Facebook","Google","Microsoft"],
+    blurb:"Given overlapping intervals, merge all that touch. Sort by start, then sweep and combine." },
+  { id:8, title:"Median of Two Sorted Arrays", tags:["Arrays","Binary Search"], acceptance:38.1, difficulty:"Hard", status:"unsolved",
+    companies:["Google","Adobe","Apple"],
+    blurb:"Find the median across two sorted arrays in O(log(min(m,n))). Binary search on the partition, not the values." },
+  { id:9, title:"Trapping Rain Water", tags:["Arrays","Two Pointers"], acceptance:59.6, difficulty:"Hard", status:"unsolved",
+    companies:["Amazon","Google","Goldman Sachs"],
+    blurb:"Compute how much rain pools between elevation bars after it falls. Track the running max from both sides." },
+  { id:10, title:"Word Ladder", tags:["Graphs","BFS"], acceptance:37.4, difficulty:"Hard", status:"solved",
+    companies:["Amazon","LinkedIn","Meta"],
+    blurb:"Transform one word into another, one letter at a time, using only dictionary words. Shortest path — think BFS, not DFS." },
+];
+
+const rowsEl = document.getElementById('rows');
+const countNum = document.getElementById('countNum');
+const searchInput = document.getElementById('searchInput');
+const topicSelect = document.getElementById('topicSelect');
+const companySelect = document.getElementById('companySelect');
+const clearBtn = document.getElementById('clearBtn');
+const diffGroup = document.getElementById('difficultyGroup');
+const statusGroup = document.getElementById('statusGroup');
+
+let state = { search:'', difficulty:'All', status:'All', topic:'All', company:'All' };
+
+const allTags = [...new Set(problems.flatMap(p=>p.tags))].sort();
+const allCompanies = [...new Set(problems.flatMap(p=>p.companies))].sort();
+allTags.forEach(t=>{ const o=document.createElement('option'); o.textContent=t; topicSelect.appendChild(o); });
+allCompanies.forEach(c=>{ const o=document.createElement('option'); o.textContent=c; companySelect.appendChild(o); });
+
+const sealIcons = {
+  solved: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  attempted: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 8v4l2.5 2.5"/><circle cx="12" cy="12" r="9"/></svg>',
+  unsolved: ''
+};
+
+function render(){
+  const filtered = problems.filter(p=>{
+    if(state.search && !(p.title.toLowerCase().includes(state.search.toLowerCase()) || String(p.id).includes(state.search))) return false;
+    if(state.difficulty!=='All' && p.difficulty!==state.difficulty) return false;
+    if(state.status!=='All' && p.status!==state.status) return false;
+    if(state.topic!=='All' && !p.tags.includes(state.topic)) return false;
+    if(state.company!=='All' && !p.companies.includes(state.company)) return false;
+    return true;
+  });
+
+  countNum.textContent = filtered.length;
+  rowsEl.innerHTML = '';
+
+  if(filtered.length===0){
+    rowsEl.innerHTML = '<div class="empty-state">No problems match these filters. Try widening your search.</div>';
+    return;
+  }
+
+  filtered.forEach(p=>{
+    const diffClass = 'diff-' + p.difficulty.toLowerCase();
+    const statusClass = 'status-' + p.status;
+    const row = document.createElement('div');
+    row.className = `row ${diffClass} ${statusClass}`;
+    row.innerHTML = `
+      <div class="seal">${sealIcons[p.status]}</div>
+      <div class="idnum">${String(p.id).padStart(3,'0')}</div>
+      <div class="titlecell">
+        <p class="p-title">${p.title}</p>
+        <span class="p-sub">${p.status}</span>
+      </div>
+      <div class="tags">${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div class="acceptcell">
+        <b>${p.acceptance.toFixed(1)}%</b>
+        <div class="accept-track"><div class="accept-fill" style="width:${p.acceptance}%"></div></div>
+      </div>
+      <div class="diffcell">${p.difficulty}</div>
+      <div class="companies">${p.companies.slice(0,3).join(', ')}${p.companies.length>3?'…':''}</div>
+      <div class="detail">
+        <p>${p.blurb}</p>
+        <button class="open-btn">Open problem
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    `;
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('.open-btn')) return;
+      row.classList.toggle('open');
+    });
+    rowsEl.appendChild(row);
+  });
+}
+
+searchInput.addEventListener('input', e=>{ state.search=e.target.value; render(); });
+topicSelect.addEventListener('change', e=>{ state.topic=e.target.value; render(); });
+companySelect.addEventListener('change', e=>{ state.company=e.target.value; render(); });
+
+diffGroup.querySelectorAll('.pill').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    diffGroup.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.difficulty = btn.dataset.val;
+    render();
+  });
+});
+statusGroup.querySelectorAll('.pill').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    statusGroup.querySelectorAll('.pill').forEach(b=>b.classList.remove('active','solved','attempted','unsolved'));
+    btn.classList.add('active', btn.dataset.val==='All' ? '' : btn.dataset.val);
+    state.status = btn.dataset.val;
+    render();
+  });
+});
+clearBtn.addEventListener('click', ()=>{
+  state = { search:'', difficulty:'All', status:'All', topic:'All', company:'All' };
+  searchInput.value=''; topicSelect.value='All'; companySelect.value='All';
+  diffGroup.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+  diffGroup.querySelector('[data-val="All"]').classList.add('active');
+  statusGroup.querySelectorAll('.pill').forEach(b=>b.classList.remove('active','solved','attempted','unsolved'));
+  statusGroup.querySelector('[data-val="All"]').classList.add('active');
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

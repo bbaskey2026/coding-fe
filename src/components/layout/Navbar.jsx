@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Flame, Search, User, LogOut, Settings as SettingsIcon, Shield, Menu, X, Award } from "lucide-react";
+import { Bell, Flame, Search, User, LogOut, Settings as SettingsIcon, Shield, Menu, X, Award, Sun, Moon } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/logo.png";
@@ -21,7 +21,7 @@ import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 
 export const Navbar = ({ onMenuClick }) => {
-  const { userProfile, notifications, markAllNotificationsRead, setCommandPaletteOpen } = useApp();
+  const { userProfile, notifications, markAllNotificationsRead, setCommandPaletteOpen, themeMode, toggleTheme } = useApp();
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -75,6 +75,9 @@ export const Navbar = ({ onMenuClick }) => {
 
           <Link to="/" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
             <Box
+              component={motion.div}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               sx={{
                 width: 40,
                 height: 40,
@@ -83,8 +86,7 @@ export const Navbar = ({ onMenuClick }) => {
                 backgroundColor: "background.card",
                 border: "1px solid",
                 borderColor: "divider",
-                transition: "transform 0.2s",
-                "&:hover": { transform: "scale(1.05)" },
+                cursor: "pointer",
               }}
             >
               <img
@@ -154,6 +156,22 @@ export const Navbar = ({ onMenuClick }) => {
             }}
           >
             <Search size={16} />
+          </IconButton>
+
+          {/* Theme Switcher */}
+          <IconButton
+            onClick={toggleTheme}
+            sx={{
+              color: "text.secondary",
+              borderRadius: "8px",
+              p: 1,
+              "&:hover": {
+                color: "text.primary",
+                backgroundColor: "background.card",
+              },
+            }}
+          >
+            {themeMode === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </IconButton>
 
           {isAuthenticated ? (
@@ -308,6 +326,9 @@ export const Navbar = ({ onMenuClick }) => {
               {/* Profile Avatar trigger */}
               <Box>
                 <IconButton
+                  component={motion.button}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.92 }}
                   onClick={(e) => setProfileAnchorEl(e.currentTarget)}
                   sx={{ p: 0.5, borderRadius: "50%" }}
                 >
@@ -390,7 +411,7 @@ export const Navbar = ({ onMenuClick }) => {
                         "&:hover": { color: "text.primary", backgroundColor: "background.card" },
                       }}
                     >
-                      <Shield size={14} style={{ color: "#D4AF37" }} />
+                      <Shield size={14} style={{ color: "currentColor" }} />
                       <span>Admin Console</span>
                     </MenuItem>
                   )}
@@ -403,8 +424,11 @@ export const Navbar = ({ onMenuClick }) => {
                       fontSize: "12px",
                       borderRadius: "8px",
                       gap: 1.5,
-                      color: "#FFFFFF",
-                      "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                      color: themeMode === "dark" ? "#F4F4F5" : "text.primary",
+                      "&:hover": { 
+                        backgroundColor: "rgba(239, 68, 68, 0.1)", 
+                        color: "#EF4444" 
+                      },
                     }}
                   >
                     <LogOut size={14} />

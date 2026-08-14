@@ -136,7 +136,7 @@ export const Footer = () => (
                       textDecoration: "none",
                       transition: "color 0.2s",
                     }}
-                    onMouseEnter={(e) => (e.target.style.color = "#D4AF37")}
+                    onMouseEnter={(e) => (e.target.style.color = "var(--mui-palette-text-primary)")}
                     onMouseLeave={(e) => (e.target.style.color = "#CFCFCF")}
                   >
                     {label}
@@ -164,8 +164,8 @@ export const Footer = () => (
         <Typography variant="caption" sx={{ color: "rgba(207, 207, 207, 0.6)" }}>
           © 2026 CodeX86 Inc. All rights reserved.
         </Typography>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <Code2 size={12} style={{ color: "#D4AF37" }} />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "text.primary" }}>
+          <Code2 size={12} style={{ color: "currentColor" }} />
         </Box>
       </Box>
     </Container>
